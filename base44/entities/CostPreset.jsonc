@@ -1,0 +1,88 @@
+{
+  "name": "CostPreset",
+  "properties": {
+    "labor_burden_percent": {
+      "type": "number"
+    },
+    "labor_rate": {
+      "type": "number"
+    },
+    "markup_percent": {
+      "type": "number"
+    },
+    "overhead_percent": {
+      "type": "number"
+    },
+    "preset_name": {
+      "description": "Name of the preset (e.g. Electrician, Plumber)",
+      "type": "string"
+    }
+  },
+  "required": [
+    "preset_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object"
+}

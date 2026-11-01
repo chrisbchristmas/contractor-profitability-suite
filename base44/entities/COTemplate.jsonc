@@ -1,0 +1,118 @@
+{
+  "name": "COTemplate",
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string"
+    },
+    "trade": {
+      "description": "Trade this template belongs to (e.g. Electrical, Plumbing). Null/empty for cross-trade templates.",
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "equipment_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "labor_burden_percent": {
+      "type": "number"
+    },
+    "labor_hours": {
+      "default": 0,
+      "type": "number"
+    },
+    "labor_rate": {
+      "default": 0,
+      "type": "number"
+    },
+    "markup_percent": {
+      "type": "number"
+    },
+    "material_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "overhead_percent": {
+      "type": "number"
+    },
+    "subcontractor_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "tax_percent": {
+      "default": 0,
+      "type": "number"
+    },
+    "template_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "template_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

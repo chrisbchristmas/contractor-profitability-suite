@@ -1,0 +1,140 @@
+{
+  "name": "LienWaiver",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Job this lien waiver belongs to",
+      "type": "string"
+    },
+    "job_name": {
+      "description": "Job name (denormalized)",
+      "type": "string"
+    },
+    "waiver_type": {
+      "description": "Type of lien waiver",
+      "enum": [
+        "Conditional",
+        "Unconditional"
+      ],
+      "type": "string"
+    },
+    "party_name": {
+      "description": "Subcontractor or vendor party name",
+      "type": "string"
+    },
+    "amount": {
+      "description": "Waiver amount in dollars",
+      "type": "number"
+    },
+    "date_issued": {
+      "description": "Date the waiver was issued/sent",
+      "format": "date",
+      "type": "string"
+    },
+    "date_received": {
+      "description": "Date the executed waiver was received back",
+      "format": "date",
+      "type": "string"
+    },
+    "status": {
+      "description": "Waiver status",
+      "enum": [
+        "Pending",
+        "Received",
+        "Executed"
+      ],
+      "default": "Pending",
+      "type": "string"
+    },
+    "notes": {
+      "description": "Additional notes",
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "party_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

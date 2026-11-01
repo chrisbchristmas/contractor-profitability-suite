@@ -1,0 +1,145 @@
+{
+  "name": "Selection",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Job this selection belongs to",
+      "type": "string"
+    },
+    "job_name": {
+      "description": "Job name (denormalized)",
+      "type": "string"
+    },
+    "category": {
+      "description": "Selection category",
+      "enum": [
+        "Flooring",
+        "Cabinets",
+        "Countertops",
+        "Fixtures",
+        "Paint",
+        "Appliances",
+        "Other"
+      ],
+      "type": "string"
+    },
+    "item_name": {
+      "description": "Name of the selection item",
+      "type": "string"
+    },
+    "allowance_amount": {
+      "description": "Allowance budget for this item",
+      "type": "number"
+    },
+    "actual_amount": {
+      "description": "Actual cost of the selected item",
+      "type": "number"
+    },
+    "client_selection_notes": {
+      "description": "Client's selection notes or preferences",
+      "type": "string"
+    },
+    "status": {
+      "description": "Selection status",
+      "enum": [
+        "Pending",
+        "Selected",
+        "Approved",
+        "Ordered"
+      ],
+      "default": "Pending",
+      "type": "string"
+    },
+    "due_date": {
+      "description": "Date the selection is due",
+      "format": "date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "item_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

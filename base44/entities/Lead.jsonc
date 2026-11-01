@@ -1,0 +1,67 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "email": {
+      "description": "Lead email address",
+      "type": "string"
+    },
+    "name": {
+      "description": "Lead name (optional)",
+      "type": "string"
+    },
+    "source": {
+      "description": "Calculator or page the lead came from, e.g. job-costing-calculator",
+      "type": "string"
+    },
+    "trade": {
+      "description": "Contractor trade selected in the lead form",
+      "type": "string"
+    },
+    "calc_inputs": {
+      "description": "Calculator inputs captured at submission",
+      "type": "object"
+    },
+    "calc_result": {
+      "description": "Calculator results captured at submission",
+      "type": "object"
+    },
+    "status": {
+      "default": "new",
+      "description": "Lead pipeline status",
+      "enum": [
+        "new",
+        "contacted",
+        "converted",
+        "unsubscribed"
+      ],
+      "type": "string"
+    },
+    "converted": {
+      "default": false,
+      "description": "Whether the lead became a paying customer",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

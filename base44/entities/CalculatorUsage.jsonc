@@ -1,0 +1,114 @@
+{
+  "name": "CalculatorUsage",
+  "type": "object",
+  "description": "Tracks usage of the free public Change Order Profit Calculator for analytics and lead capture.",
+  "properties": {
+    "labor_hours": {
+      "type": "number",
+      "description": "Input: labor hours"
+    },
+    "labor_rate": {
+      "type": "number",
+      "description": "Input: labor rate $/hr"
+    },
+    "labor_burden_percent": {
+      "type": "number",
+      "description": "Input: labor burden %"
+    },
+    "materials_cost": {
+      "type": "number",
+      "description": "Input: materials cost $"
+    },
+    "equipment_cost": {
+      "type": "number",
+      "description": "Input: equipment/rental cost $"
+    },
+    "subcontractor_cost": {
+      "type": "number",
+      "description": "Input: subcontractor cost $"
+    },
+    "overhead_percent": {
+      "type": "number",
+      "description": "Input: overhead %"
+    },
+    "markup_percent": {
+      "type": "number",
+      "description": "Input: markup %"
+    },
+    "tax_percent": {
+      "type": "number",
+      "description": "Input: sales tax %"
+    },
+    "target_margin_percent": {
+      "type": "number",
+      "description": "Input: target margin %"
+    },
+    "trade_preset": {
+      "type": "string",
+      "description": "Which trade preset was used (if any)"
+    },
+    "true_cost": {
+      "type": "number",
+      "description": "Output: calculated true cost"
+    },
+    "client_price": {
+      "type": "number",
+      "description": "Output: calculated client price"
+    },
+    "profit_dollars": {
+      "type": "number",
+      "description": "Output: calculated profit $"
+    },
+    "actual_margin_percent": {
+      "type": "number",
+      "description": "Output: calculated actual margin %"
+    },
+    "leakage_status": {
+      "type": "string",
+      "enum": [
+        "green",
+        "yellow",
+        "red"
+      ],
+      "description": "Leakage alert level"
+    },
+    "emailed_result_to": {
+      "type": "string",
+      "description": "Email address if user chose to receive result"
+    },
+    "clicked_signup_cta": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user clicked the Start Free Trial CTA"
+    },
+    "referrer": {
+      "type": "string",
+      "description": "Where the user came from"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser user agent for device insights"
+    }
+  },
+  "required": [],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

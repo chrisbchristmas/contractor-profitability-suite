@@ -1,0 +1,87 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "description": "User ID this notification belongs to",
+      "type": "string"
+    },
+    "type": {
+      "description": "Notification type",
+      "enum": [
+        "margin_alert",
+        "co_pending",
+        "invoice_overdue"
+      ],
+      "type": "string"
+    },
+    "message": {
+      "description": "Human-readable notification message",
+      "type": "string"
+    },
+    "job_id": {
+      "description": "Related job ID for deep-linking",
+      "type": "string"
+    },
+    "is_read": {
+      "description": "Whether the notification has been read",
+      "default": false,
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "message"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "pm",
+        "admin"
+      ],
+      "default": "owner"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "trade": {
+      "description": "Contractor's primary trade",
+      "enum": [
+        "Roofing",
+        "Painting",
+        "Electrical",
+        "Plumbing",
+        "HVAC",
+        "General Carpentry/Remodeling",
+        "Flooring",
+        "Landscaping/Hardscape",
+        "Concrete"
+      ],
+      "type": "string"
+    },
+    "target_margin_percent": {
+      "type": "number",
+      "default": 30
+    },
+    "labor_burden_percent": {
+      "type": "number",
+      "default": 25
+    },
+    "default_markup_percent": {
+      "type": "number",
+      "default": 35
+    },
+    "default_overhead_percent": {
+      "type": "number",
+      "default": 10
+    },
+    "annual_profit_goal": {
+      "type": "number",
+      "description": "Annual profit goal in dollars"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "trial",
+        "active",
+        "past_due",
+        "canceled"
+      ],
+      "default": "trial"
+    },
+    "subscription_plan": {
+      "type": "string"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "trial_ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trial period expires"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,142 @@
+{
+  "name": "CrewCost",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Job this crew cost belongs to",
+      "type": "string"
+    },
+    "job_name": {
+      "description": "Job name (denormalized)",
+      "type": "string"
+    },
+    "worker_name": {
+      "description": "Worker or subcontractor name",
+      "type": "string"
+    },
+    "worker_type": {
+      "description": "Worker type",
+      "enum": [
+        "Employee",
+        "Subcontractor"
+      ],
+      "default": "Employee",
+      "type": "string"
+    },
+    "trade": {
+      "description": "Trade or role (e.g. Electrician, Plumber, Laborer)",
+      "type": "string"
+    },
+    "hourly_rate": {
+      "description": "Hourly rate for employees",
+      "type": "number"
+    },
+    "quoted_amount": {
+      "description": "Quoted/lump-sum amount for subcontractors",
+      "type": "number"
+    },
+    "hours_worked": {
+      "description": "Hours worked (employees)",
+      "type": "number"
+    },
+    "total_cost": {
+      "description": "Calculated: hourly_rate x hours_worked for employees, quoted_amount for subcontractors",
+      "type": "number"
+    },
+    "date": {
+      "description": "Date of work or cost",
+      "format": "date",
+      "type": "string"
+    },
+    "notes": {
+      "description": "Additional notes",
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "worker_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

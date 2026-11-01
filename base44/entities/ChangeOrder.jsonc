@@ -1,0 +1,281 @@
+{
+  "name": "ChangeOrder",
+  "properties": {
+    "actual_labor_hours": {
+      "description": "Actual labor hours spent",
+      "type": "number"
+    },
+    "approval_method": {
+      "description": "How approval was captured (e.g. e_signature)",
+      "type": "string"
+    },
+    "approval_required": {
+      "default": true,
+      "type": "boolean"
+    },
+    "approval_token": {
+      "description": "Unique unguessable token for public client approval link",
+      "type": "string"
+    },
+    "approved_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "approved_by": {
+      "description": "User ID of approver",
+      "type": "string"
+    },
+    "approved_by_name": {
+      "description": "Name of approver",
+      "type": "string"
+    },
+    "baseline_material_cost": {
+      "description": "Baseline material cost for inflation tracking",
+      "type": "number"
+    },
+    "base_hourly_wage": {
+      "description": "Base hourly wage before burden for detailed labour burden calculation",
+      "type": "number"
+    },
+    "benefits_percent": {
+      "default": 5,
+      "description": "Benefits % (health, PTO, etc.)",
+      "type": "number"
+    },
+    "burden_amount_per_hour": {
+      "description": "Calculated: base wage x (payroll tax% + wc% + gl% + benefits%)",
+      "type": "number"
+    },
+    "decline_reason": {
+      "description": "Optional reason provided by client when declining",
+      "type": "string"
+    },
+    "declined_at": {
+      "description": "Timestamp when client declined the change order",
+      "format": "date-time",
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "equipment_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "estimated_labor_hours": {
+      "description": "Estimated labor hours for efficiency tracking",
+      "type": "number"
+    },
+    "final_price_to_client": {
+      "type": "number"
+    },
+    "fully_loaded_rate": {
+      "description": "Calculated: base wage + burden amount per hour",
+      "type": "number"
+    },
+    "general_liability_percent": {
+      "default": 3,
+      "description": "General liability insurance %",
+      "type": "number"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "labor_burden_percent": {
+      "type": "number"
+    },
+    "labor_hours": {
+      "default": 0,
+      "type": "number"
+    },
+    "labor_rate": {
+      "default": 0,
+      "type": "number"
+    },
+    "leakage_amount": {
+      "type": "number"
+    },
+    "markup_percent": {
+      "type": "number"
+    },
+    "material_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "overhead_amount": {
+      "type": "number"
+    },
+    "overhead_percent": {
+      "type": "number"
+    },
+    "payment_due_days": {
+      "description": "Days until payment is due from creation",
+      "type": "number"
+    },
+    "payroll_tax_percent": {
+      "default": 12,
+      "description": "Payroll tax % (FICA, FUTA, SUTA combined)",
+      "type": "number"
+    },
+    "photos": {
+      "description": "Attached photos justifying the change order (extra work, site conditions, damage)",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "description": "Public URL of the uploaded photo",
+            "type": "string"
+          },
+          "name": {
+            "description": "Original file name",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sell_price": {
+      "type": "number"
+    },
+    "signer_ip": {
+      "description": "IP address captured at time of e-signature",
+      "type": "string"
+    },
+    "signer_name": {
+      "description": "Full name typed by client as e-signature",
+      "type": "string"
+    },
+    "signed_at": {
+      "description": "Timestamp of client e-signature",
+      "format": "date-time",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "approved",
+        "declined"
+      ],
+      "type": "string"
+    },
+    "subcontractor_cost": {
+      "default": 0,
+      "type": "number"
+    },
+    "subtotal_before_overhead": {
+      "type": "number"
+    },
+    "target_margin": {
+      "type": "number"
+    },
+    "target_sell_price": {
+      "type": "number"
+    },
+    "tax_amount": {
+      "type": "number"
+    },
+    "tax_percent": {
+      "default": 0,
+      "type": "number"
+    },
+    "total_cost": {
+      "type": "number"
+    },
+    "total_labor_burden_cost": {
+      "description": "Calculated: fully loaded rate x labour hours",
+      "type": "number"
+    },
+    "true_labor_cost": {
+      "type": "number"
+    },
+    "true_margin_percent": {
+      "type": "number"
+    },
+    "viewed_at": {
+      "description": "Timestamp when client first opened the approval link",
+      "format": "date-time",
+      "type": "string"
+    },
+    "workers_comp_percent": {
+      "default": 8,
+      "description": "Workers comp %",
+      "type": "number"
+    }
+  },
+  "required": [
+    "job_id",
+    "description"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object"
+}

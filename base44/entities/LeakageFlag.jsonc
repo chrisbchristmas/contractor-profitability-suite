@@ -1,0 +1,59 @@
+{
+  "name": "LeakageFlag",
+  "properties": {
+    "change_order_id": {
+      "description": "Reference to the change order",
+      "type": "string"
+    },
+    "flag_message": {
+      "description": "Human readable flag message",
+      "type": "string"
+    },
+    "flag_type": {
+      "description": "Type of flag (e.g. markup_below_min, burden_missing, margin_below_target)",
+      "type": "string"
+    }
+  },
+  "required": [
+    "change_order_id",
+    "flag_type",
+    "flag_message"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}

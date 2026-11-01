@@ -1,0 +1,46 @@
+{
+  "name": "Auto Publish SEO Article Every 48 Hours",
+  "description": "Picks the next draft SEO article, generates content with AI, applies internal links, and publishes it. Runs every 48 hours to publish 45 articles over 90 days.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 2,
+      "interval_unit": "days",
+      "interval_anchor": "2026-03-09T14:00:00",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "auto_publish_seo_article_every_48_hours",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "autoPublishArticle",
+            "args": {
+              "automation_secret": "cps_auto_7f3a9c2e8b1d4f6a3e5c7b9d1f3a2e4c"
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "autoPublishArticle"
+  }
+}

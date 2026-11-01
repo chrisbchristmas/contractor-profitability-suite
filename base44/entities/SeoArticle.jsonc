@@ -1,0 +1,102 @@
+{
+  "name": "SeoArticle",
+  "properties": {
+    "clicks_to_calculator": {
+      "default": 0,
+      "description": "Tracks CTA clicks",
+      "type": "number"
+    },
+    "content": {
+      "description": "Full HTML article body",
+      "type": "string"
+    },
+    "cta_link": {
+      "description": "Override CTA URL (defaults to /billing)",
+      "type": "string"
+    },
+    "meta_description": {
+      "description": "SEO meta description (150-160 chars)",
+      "type": "string"
+    },
+    "primary_keyword": {
+      "description": "Primary target SEO keyword",
+      "type": "string"
+    },
+    "publish_date": {
+      "description": "When the article was published",
+      "format": "date-time",
+      "type": "string"
+    },
+    "secondary_keywords": {
+      "description": "Supporting/LSI keywords",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "signups_generated": {
+      "default": 0,
+      "description": "Tracks new user signups from this article",
+      "type": "number"
+    },
+    "slug": {
+      "description": "URL-safe slug, e.g. how-to-price-a-change-order",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "description": "Draft or published",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "type": "string"
+    },
+    "title": {
+      "description": "Article title / H1",
+      "type": "string"
+    },
+    "views": {
+      "default": 0,
+      "description": "Tracks page loads",
+      "type": "number"
+    },
+    "word_count": {
+      "description": "Approximate word count of generated content",
+      "type": "number"
+    }
+  },
+  "required": [
+    "primary_keyword"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.status": "published"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}

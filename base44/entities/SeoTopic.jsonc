@@ -1,0 +1,57 @@
+{
+  "name": "SeoTopic",
+  "properties": {
+    "article_title": {
+      "description": "AI-generated title template",
+      "type": "string"
+    },
+    "keyword": {
+      "description": "Target SEO keyword",
+      "type": "string"
+    },
+    "next_publish_date": {
+      "description": "Scheduled date for article generation",
+      "format": "date-time",
+      "type": "string"
+    },
+    "seo_article_id": {
+      "description": "Reference to generated SeoArticle",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "description": "Whether an article has been generated for this topic",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "keyword"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}

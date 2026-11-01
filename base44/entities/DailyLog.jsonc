@@ -1,0 +1,127 @@
+{
+  "name": "DailyLog",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Job this daily log belongs to",
+      "type": "string"
+    },
+    "job_name": {
+      "description": "Job name (denormalized)",
+      "type": "string"
+    },
+    "log_date": {
+      "description": "Date of the log entry",
+      "format": "date",
+      "type": "string"
+    },
+    "weather": {
+      "description": "Weather conditions",
+      "enum": [
+        "Clear",
+        "Cloudy",
+        "Rain",
+        "Snow",
+        "Wind"
+      ],
+      "type": "string"
+    },
+    "crew_count": {
+      "description": "Number of crew members on site",
+      "type": "number"
+    },
+    "hours_worked": {
+      "description": "Total hours worked by crew",
+      "type": "number"
+    },
+    "work_performed": {
+      "description": "Description of work performed",
+      "type": "string"
+    },
+    "issues_noted": {
+      "description": "Issues or delays noted",
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "log_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

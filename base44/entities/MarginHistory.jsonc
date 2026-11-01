@@ -1,0 +1,63 @@
+{
+  "name": "MarginHistory",
+  "properties": {
+    "adjusted_cost": {
+      "type": "number"
+    },
+    "adjusted_revenue": {
+      "type": "number"
+    },
+    "change_order_id": {
+      "description": "The CO that triggered this snapshot",
+      "type": "string"
+    },
+    "job_id": {
+      "description": "Reference to the job",
+      "type": "string"
+    },
+    "margin_percent": {
+      "description": "Job real-time margin at time of snapshot",
+      "type": "number"
+    },
+    "snapshot_reason": {
+      "description": "e.g. CO approved",
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "margin_percent"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "type": "object"
+}

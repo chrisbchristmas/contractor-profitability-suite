@@ -1,0 +1,231 @@
+{
+  "name": "Customer",
+  "type": "object",
+  "properties": {
+    "annual_profit_goal": {
+      "description": "Annual profit goal in dollars",
+      "type": "number"
+    },
+    "base_hourly_wage": {
+      "description": "Base hourly wage from regional preset, used in labor burden calculations",
+      "type": "number"
+    },
+    "be_avg_job_value": {
+      "description": "Average job value for break-even analysis",
+      "type": "number"
+    },
+    "be_gross_margin_percent": {
+      "description": "Gross margin % for break-even analysis",
+      "type": "number"
+    },
+    "be_insurance": {
+      "default": 0,
+      "description": "Monthly insurance cost",
+      "type": "number"
+    },
+    "be_marketing": {
+      "default": 0,
+      "description": "Monthly marketing cost",
+      "type": "number"
+    },
+    "be_other": {
+      "default": 0,
+      "description": "Other monthly overhead",
+      "type": "number"
+    },
+    "be_phone_utilities": {
+      "default": 0,
+      "description": "Monthly phone/utilities cost",
+      "type": "number"
+    },
+    "be_rent_office": {
+      "default": 0,
+      "description": "Monthly rent/office cost",
+      "type": "number"
+    },
+    "be_salaries_non_field": {
+      "default": 0,
+      "description": "Monthly salaries for non-field staff",
+      "type": "number"
+    },
+    "be_software_tools": {
+      "default": 0,
+      "description": "Monthly software/tools cost",
+      "type": "number"
+    },
+    "be_vehicle_equipment": {
+      "default": 0,
+      "description": "Monthly vehicle/equipment cost",
+      "type": "number"
+    },
+    "benefits_percent": {
+      "default": 5,
+      "description": "Benefits % component of labor burden",
+      "type": "number"
+    },
+    "company_name": {
+      "description": "Company name",
+      "type": "string"
+    },
+    "default_markup_percent": {
+      "default": 35,
+      "description": "Default markup % for new change orders",
+      "type": "number"
+    },
+    "default_overhead_percent": {
+      "default": 10,
+      "description": "Default overhead % for new change orders",
+      "type": "number"
+    },
+    "email": {
+      "description": "Customer email address (unique)",
+      "type": "string"
+    },
+    "full_name": {
+      "description": "Customer display name",
+      "type": "string"
+    },
+    "general_liability_percent": {
+      "default": 3,
+      "description": "General liability insurance % component of labor burden",
+      "type": "number"
+    },
+    "labor_burden_percent": {
+      "default": 35,
+      "description": "Total labor burden % applied to labor cost everywhere (breakdown = payroll tax + workers comp + liability + benefits)",
+      "type": "number"
+    },
+    "password_hash": {
+      "description": "Bcrypt hashed password",
+      "type": "string"
+    },
+    "payroll_tax_percent": {
+      "default": 12,
+      "description": "Payroll tax % component of labor burden (FICA, FUTA, SUTA)",
+      "type": "number"
+    },
+    "phone": {
+      "description": "Phone number",
+      "type": "string"
+    },
+    "reset_token": {
+      "description": "Password reset token (single-use, time-limited)",
+      "type": "string"
+    },
+    "reset_token_expires_at": {
+      "description": "Expiry timestamp for the password reset token",
+      "format": "date-time",
+      "type": "string"
+    },
+    "session_token": {
+      "description": "Current active session token",
+      "type": "string"
+    },
+    "state": {
+      "description": "US state code for regional labour rate defaults",
+      "type": "string"
+    },
+    "stripe_customer_id": {
+      "type": "string"
+    },
+    "subscription_plan": {
+      "description": "e.g. solo, pro",
+      "type": "string"
+    },
+    "subscription_status": {
+      "default": "trial",
+      "enum": [
+        "trial",
+        "active",
+        "past_due",
+        "canceled"
+      ],
+      "type": "string"
+    },
+    "target_margin_percent": {
+      "default": 30,
+      "description": "Target profit margin %",
+      "type": "number"
+    },
+    "trade": {
+      "description": "Contractor's primary trade",
+      "enum": [
+        "Roofing",
+        "Painting",
+        "Electrical",
+        "Plumbing",
+        "HVAC",
+        "General Carpentry/Remodeling",
+        "Flooring",
+        "Landscaping/Hardscape",
+        "Concrete"
+      ],
+      "type": "string"
+    },
+    "trade_preset": {
+      "description": "Selected trade preset that drives default overhead, markup, workers comp, and profit target",
+      "enum": [
+        "General Contractor",
+        "Painting",
+        "Roofing",
+        "HVAC",
+        "Electrical",
+        "Plumbing"
+      ],
+      "type": "string"
+    },
+    "trial_ends_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "variance_alert_threshold_percent": {
+      "default": 8,
+      "description": "Threshold % over estimate at which a category variance alert fires",
+      "type": "number"
+    },
+    "workers_comp_percent": {
+      "default": 8,
+      "description": "Default workers comp % from trade preset",
+      "type": "number"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "name": "Proposal",
+  "properties": {
+    "client_address": {
+      "description": "Client or project address",
+      "type": "string"
+    },
+    "client_email": {
+      "description": "Client email address",
+      "type": "string"
+    },
+    "client_name": {
+      "description": "Client full name or company",
+      "type": "string"
+    },
+    "contract_value": {
+      "description": "Total contract price",
+      "type": "number"
+    },
+    "contractor_company": {
+      "description": "Contractor company name",
+      "type": "string"
+    },
+    "contractor_email": {
+      "type": "string"
+    },
+    "contractor_license": {
+      "description": "License number",
+      "type": "string"
+    },
+    "contractor_phone": {
+      "type": "string"
+    },
+    "job_id": {
+      "description": "Optional linked job ID",
+      "type": "string"
+    },
+    "job_type": {
+      "description": "Type of work e.g. HVAC installation, kitchen remodel, roof replacement",
+      "type": "string"
+    },
+    "month_generated": {
+      "description": "YYYY-MM format for usage counting",
+      "type": "string"
+    },
+    "payment_terms": {
+      "description": "e.g. 50% upfront, 50% on completion",
+      "type": "string"
+    },
+    "proposal_content": {
+      "description": "Full AI-generated proposal text",
+      "type": "string"
+    },
+    "scope_description": {
+      "description": "Detailed description of the work scope",
+      "type": "string"
+    },
+    "special_notes": {
+      "description": "Any additional notes or inclusions/exclusions",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "enum": [
+        "draft",
+        "sent",
+        "accepted",
+        "declined"
+      ],
+      "type": "string"
+    },
+    "timeline": {
+      "description": "Project timeline e.g. 2 weeks, starting June 1",
+      "type": "string"
+    },
+    "tone": {
+      "default": "professional",
+      "enum": [
+        "professional",
+        "friendly",
+        "formal"
+      ],
+      "type": "string"
+    },
+    "user_id": {
+      "description": "Owner user ID",
+      "type": "string"
+    },
+    "warranty_terms": {
+      "description": "e.g. 1 year labor warranty",
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_name",
+    "job_type",
+    "scope_description",
+    "contract_value"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "owner"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "pm"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "type": "object"
+}
