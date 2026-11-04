@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Mail, CheckCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { supabase } from "@/api/supabaseClient";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TRADES = ["HVAC", "Electrical", "Plumbing", "Roofing", "Remodeling", "Painting", "General Contractor", "Other"];
@@ -29,7 +30,11 @@ export default function LeadCapture({ source, calcInputs, calcResult, getCalcDat
         inputs = data.inputs || inputs;
         result = data.result || result;
       }
-      await base44.entities.Lead.create({
+      // shortcut: anon insert can't .select() the row back (lead_read policy is admin-only,
+      // and base44Client's generic .create() always appends .select().single(), which makes
+      // Postgres re-check SELECT and fail the whole insert) — bypass the shim here and insert
+      // without select(). Upgrade: scope lead_read to allow select-after-insert for anon.
+      const { error: leadErr } = await supabase.from("lead").insert({
         email,
         name: "",
         source,
@@ -39,6 +44,7 @@ export default function LeadCapture({ source, calcInputs, calcResult, getCalcDat
         status: "new",
         converted: false,
       });
+      if (leadErr) throw leadErr;
       await base44.functions.invoke("sendLeadWelcome", {
         email,
         trade,
