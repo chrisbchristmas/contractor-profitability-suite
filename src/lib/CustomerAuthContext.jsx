@@ -1,9 +1,21 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 
 const CustomerAuthContext = createContext();
 
 const TOKEN_KEY = 'cps_session_token';
+
+// Establish a real Supabase Auth session for the signed-in customer so RLS
+// scopes every query to their own rows. Reuses an existing session when it
+// already belongs to this customer.
+async function syncDataSession(token, customerEmail) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user?.email?.toLowerCase() === customerEmail?.toLowerCase()) return;
+  const res = await base44.functions.invoke('getCustomerSession', { session_token: token });
+  const s = res.data?.supabase_session;
+  if (s) await supabase.auth.setSession(s);
+}
 
 export const CustomerAuthProvider = ({ children }) => {
   const [customer, setCustomer] = useState(undefined); // undefined = loading, null = not logged in
@@ -18,6 +30,7 @@ export const CustomerAuthProvider = ({ children }) => {
     }
     try {
       const res = await base44.functions.invoke('getCustomerSession', { session_token: token });
+      await syncDataSession(token, res.data.customer.email);
       setCustomer(res.data.customer);
     } catch {
       localStorage.removeItem(TOKEN_KEY);
@@ -31,13 +44,15 @@ export const CustomerAuthProvider = ({ children }) => {
     loadSession();
   }, [loadSession]);
 
-  const login = (session_token, customerData) => {
+  const login = async (session_token, customerData) => {
     localStorage.setItem(TOKEN_KEY, session_token);
+    try { await syncDataSession(session_token, customerData?.email); } catch (e) { console.error('data session failed', e); }
     setCustomer(customerData);
   };
 
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
+    supabase.auth.signOut();
     setCustomer(null);
   };
 

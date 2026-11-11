@@ -1,0 +1,96 @@
+create or replace function public.set_row_owner() returns trigger language plpgsql security definer set search_path=public as $$
+begin
+  if auth.uid() is not null then
+    new.created_by_id := auth.uid();
+    new.created_by := coalesce(auth.jwt()->>'email', new.created_by);
+  end if;
+  return new;
+end $$;
+create or replace function public.set_row_owner_user() returns trigger language plpgsql security definer set search_path=public as $$
+begin
+  if auth.uid() is not null and new.user_id is null then new.user_id := auth.uid(); end if;
+  return new;
+end $$;
+create or replace function public.protect_customer_cols() returns trigger language plpgsql security definer set search_path=public as $$
+begin
+  if auth.uid() is not null and coalesce(public.current_user_role(),'')<>'admin' then
+    new.subscription_status:=old.subscription_status; new.subscription_plan:=old.subscription_plan;
+    new.trial_ends_at:=old.trial_ends_at; new.stripe_customer_id:=old.stripe_customer_id;
+    new.password_hash:=old.password_hash; new.session_token:=old.session_token; new.email:=old.email;
+  end if; return new;
+end $$;
+drop trigger if exists customer_protect on public.customer; create trigger customer_protect before update on public.customer for each row execute function public.protect_customer_cols();
+drop trigger if exists "cost_preset_set_owner" on public."cost_preset"; create trigger "cost_preset_set_owner" before insert on public."cost_preset" for each row execute function public.set_row_owner();
+drop trigger if exists "audit_log_set_owner" on public."audit_log"; create trigger "audit_log_set_owner" before insert on public."audit_log" for each row execute function public.set_row_owner();
+drop trigger if exists "co_template_set_owner" on public."co_template"; create trigger "co_template_set_owner" before insert on public."co_template" for each row execute function public.set_row_owner();
+drop trigger if exists "calculator_usage_set_owner" on public."calculator_usage"; create trigger "calculator_usage_set_owner" before insert on public."calculator_usage" for each row execute function public.set_row_owner();
+drop trigger if exists "change_order_set_owner" on public."change_order"; create trigger "change_order_set_owner" before insert on public."change_order" for each row execute function public.set_row_owner();
+drop trigger if exists "crew_cost_set_owner" on public."crew_cost"; create trigger "crew_cost_set_owner" before insert on public."crew_cost" for each row execute function public.set_row_owner();
+drop trigger if exists "customer_set_owner" on public."customer"; create trigger "customer_set_owner" before insert on public."customer" for each row execute function public.set_row_owner();
+drop trigger if exists "daily_log_set_owner" on public."daily_log"; create trigger "daily_log_set_owner" before insert on public."daily_log" for each row execute function public.set_row_owner();
+drop trigger if exists "estimate_set_owner" on public."estimate"; create trigger "estimate_set_owner" before insert on public."estimate" for each row execute function public.set_row_owner();
+drop trigger if exists "invoice_set_owner" on public."invoice"; create trigger "invoice_set_owner" before insert on public."invoice" for each row execute function public.set_row_owner();
+drop trigger if exists "job_set_owner" on public."job"; create trigger "job_set_owner" before insert on public."job" for each row execute function public.set_row_owner();
+drop trigger if exists "job_attachment_set_owner" on public."job_attachment"; create trigger "job_attachment_set_owner" before insert on public."job_attachment" for each row execute function public.set_row_owner();
+drop trigger if exists "job_expense_set_owner" on public."job_expense"; create trigger "job_expense_set_owner" before insert on public."job_expense" for each row execute function public.set_row_owner();
+drop trigger if exists "job_template_set_owner" on public."job_template"; create trigger "job_template_set_owner" before insert on public."job_template" for each row execute function public.set_row_owner();
+drop trigger if exists "lead_set_owner" on public."lead"; create trigger "lead_set_owner" before insert on public."lead" for each row execute function public.set_row_owner();
+drop trigger if exists "leakage_flag_set_owner" on public."leakage_flag"; create trigger "leakage_flag_set_owner" before insert on public."leakage_flag" for each row execute function public.set_row_owner();
+drop trigger if exists "lien_waiver_set_owner" on public."lien_waiver"; create trigger "lien_waiver_set_owner" before insert on public."lien_waiver" for each row execute function public.set_row_owner();
+drop trigger if exists "margin_history_set_owner" on public."margin_history"; create trigger "margin_history_set_owner" before insert on public."margin_history" for each row execute function public.set_row_owner();
+drop trigger if exists "notification_set_owner" on public."notification"; create trigger "notification_set_owner" before insert on public."notification" for each row execute function public.set_row_owner();
+drop trigger if exists "pdf_record_set_owner" on public."pdf_record"; create trigger "pdf_record_set_owner" before insert on public."pdf_record" for each row execute function public.set_row_owner();
+drop trigger if exists "proposal_set_owner" on public."proposal"; create trigger "proposal_set_owner" before insert on public."proposal" for each row execute function public.set_row_owner();
+drop trigger if exists "selection_set_owner" on public."selection"; create trigger "selection_set_owner" before insert on public."selection" for each row execute function public.set_row_owner();
+drop trigger if exists "seo_article_set_owner" on public."seo_article"; create trigger "seo_article_set_owner" before insert on public."seo_article" for each row execute function public.set_row_owner();
+drop trigger if exists "seo_topic_set_owner" on public."seo_topic"; create trigger "seo_topic_set_owner" before insert on public."seo_topic" for each row execute function public.set_row_owner();
+drop trigger if exists "subcontractor_po_set_owner" on public."subcontractor_po"; create trigger "subcontractor_po_set_owner" before insert on public."subcontractor_po" for each row execute function public.set_row_owner();
+drop trigger if exists "task_set_owner" on public."task"; create trigger "task_set_owner" before insert on public."task" for each row execute function public.set_row_owner();
+drop trigger if exists "time_entry_set_owner" on public."time_entry"; create trigger "time_entry_set_owner" before insert on public."time_entry" for each row execute function public.set_row_owner();
+drop trigger if exists "warranty_set_owner" on public."warranty"; create trigger "warranty_set_owner" before insert on public."warranty" for each row execute function public.set_row_owner();
+drop trigger if exists "job_set_user" on public."job"; create trigger "job_set_user" before insert on public."job" for each row execute function public.set_row_owner_user();
+drop trigger if exists "notification_set_user" on public."notification"; create trigger "notification_set_user" before insert on public."notification" for each row execute function public.set_row_owner_user();
+drop trigger if exists "proposal_set_user" on public."proposal"; create trigger "proposal_set_user" before insert on public."proposal" for each row execute function public.set_row_owner_user();
+alter policy "co_template_read" on public."co_template" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "co_template_update" on public."co_template" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "co_template_delete" on public."co_template" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "change_order_read" on public."change_order" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "change_order_update" on public."change_order" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "cost_preset_read" on public."cost_preset" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "cost_preset_update" on public."cost_preset" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "cost_preset_delete" on public."cost_preset" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "crew_cost_read" on public."crew_cost" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "margin_history_read" on public."margin_history" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "crew_cost_update" on public."crew_cost" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "crew_cost_delete" on public."crew_cost" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "daily_log_read" on public."daily_log" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "daily_log_update" on public."daily_log" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "daily_log_delete" on public."daily_log" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "estimate_read" on public."estimate" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "estimate_update" on public."estimate" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "invoice_read" on public."invoice" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "invoice_update" on public."invoice" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_attachment_read" on public."job_attachment" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_attachment_update" on public."job_attachment" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_expense_read" on public."job_expense" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_expense_update" on public."job_expense" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_expense_delete" on public."job_expense" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_template_read" on public."job_template" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_template_update" on public."job_template" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "job_template_delete" on public."job_template" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "leakage_flag_read" on public."leakage_flag" using (((created_by_id = auth.uid()) OR ((current_user_role() = 'admin'::text))));
+alter policy "lien_waiver_read" on public."lien_waiver" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "lien_waiver_update" on public."lien_waiver" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "lien_waiver_delete" on public."lien_waiver" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "pdf_record_read" on public."pdf_record" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "selection_read" on public."selection" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "selection_update" on public."selection" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "selection_delete" on public."selection" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "subcontractor_po_read" on public."subcontractor_po" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "subcontractor_po_update" on public."subcontractor_po" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "task_read" on public."task" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "task_update" on public."task" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "task_delete" on public."task" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "time_entry_read" on public."time_entry" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "warranty_read" on public."warranty" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));
+alter policy "warranty_update" on public."warranty" using (((created_by_id = auth.uid()) OR (current_user_role() = 'admin'::text)));

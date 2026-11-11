@@ -1,5 +1,17 @@
-import { entities } from '../_shared/base44compat.ts';
+import { entities, supa } from '../_shared/base44compat.ts';
+import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import { corsHeaders } from '../_shared/cors.ts';
+
+// Mint a real Supabase Auth session for this customer so row-level security
+// (auth.uid()) can isolate each tenant's data.
+async function mintSupabaseSession(email: string) {
+  const { data: link, error: linkErr } = await supa.auth.admin.generateLink({ type: 'magiclink', email });
+  if (linkErr || !link?.properties?.hashed_token) throw new Error('Could not start data session');
+  const anon = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { auth: { persistSession: false } });
+  const { data, error } = await anon.auth.verifyOtp({ token_hash: link.properties.hashed_token, type: (link.properties.verification_type || 'magiclink') as any });
+  if (error || !data.session) throw new Error('Could not start data session');
+  return { access_token: data.session.access_token, refresh_token: data.session.refresh_token };
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -19,7 +31,10 @@ Deno.serve(async (req) => {
     delete customer.password_hash;
     delete customer.session_token;
 
+    const supabase_session = await mintSupabaseSession(customer.email);
+
     return Response.json({
+      supabase_session,
       customer: {
         id: customer.id,
         email: customer.email,

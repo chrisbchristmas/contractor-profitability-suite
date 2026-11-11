@@ -52,7 +52,7 @@ export default function CustomerLogin() {
     setError('');
     try {
       const res = await base44.functions.invoke('googleAuthCustomer', {});
-      login(res.data.session_token, res.data.customer);
+      await login(res.data.session_token, res.data.customer);
       navigate(redirectAfter);
     } catch (err) {
       setError(err?.response?.data?.error || 'Google sign-in failed. Please try again.');
@@ -81,7 +81,7 @@ export default function CustomerLogin() {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('loginCustomer', { email, password });
-      login(res.data.session_token, res.data.customer);
+      await login(res.data.session_token, res.data.customer);
       navigate(redirectAfter);
     } catch (err) {
       setError(err?.response?.data?.error || 'Invalid email or password');
@@ -106,7 +106,7 @@ export default function CustomerLogin() {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('registerCustomer', { email, password });
-      login(res.data.session_token, res.data.customer);
+      await login(res.data.session_token, res.data.customer);
       navigate('/Billing');
     } catch (err) {
       setError(err?.response?.data?.error || 'Registration failed. Please try again.');
@@ -145,7 +145,7 @@ export default function CustomerLogin() {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('resetPassword', { reset_token: resetToken, password });
-      login(res.data.session_token, res.data.customer);
+      await login(res.data.session_token, res.data.customer);
       navigate(redirectAfter);
     } catch (err) {
       setError(err?.response?.data?.error || 'Reset failed. The link may have expired.');

@@ -35,7 +35,7 @@ export default function Register() {
         password: form.password,
         full_name: form.full_name,
       });
-      login(res.data.session_token, res.data.customer);
+      await login(res.data.session_token, res.data.customer);
       navigate('/Dashboard');
     } catch (err) {
       setError(err?.response?.data?.error || 'Registration failed. Please try again.');
