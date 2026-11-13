@@ -1,16 +1,21 @@
 import { entities } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { newSessionToken, rateLimited, tooMany } from '../_shared/security.ts';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    if (rateLimited(req, 'registerCustomer')) return tooMany(corsHeaders);
     const { email, password, full_name } = await req.json();
 
     if (!email || !password) {
       return Response.json({ error: 'Email and password are required' }, { status: 400, headers: corsHeaders });
     }
 
+    if (typeof email !== 'string' || typeof password !== 'string' || password.length < 8 || password.length > 128) {
+      return Response.json({ error: 'Password must be 8-128 characters' }, { status: 400, headers: corsHeaders });
+    }
     const normalizedEmail = email.toLowerCase().trim();
 
     const existing = await entities.Customer.filter({ email: normalizedEmail });
@@ -19,7 +24,7 @@ Deno.serve(async (req) => {
     }
 
     const password_hash = await bcrypt.hash(password, 10);
-    const session_token = crypto.randomUUID() + '-' + crypto.randomUUID();
+    const session_token = newSessionToken();
     const trial_ends_at = new Date();
     trial_ends_at.setDate(trial_ends_at.getDate() + 14);
 

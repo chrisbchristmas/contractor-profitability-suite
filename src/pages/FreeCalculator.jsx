@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { supabase } from "@/api/supabaseClient";
 import { Info, TrendingUp, AlertTriangle, CheckCircle, XCircle, Mail, ArrowRight } from "lucide-react";
 import { safeJsonLd } from "@/utils/safeJsonLd";
 import LeadCapture from "@/components/leads/LeadCapture";
@@ -185,7 +186,10 @@ export default function FreeCalculator() {
     clearTimeout(logTimerRef.current);
     logTimerRef.current = setTimeout(async () => {
       try {
-        await base44.entities.CalculatorUsage.create({
+        // shortcut: same anon-insert issue as LeadCapture.jsx — calculator_usage_read
+        // is admin-only, and base44Client's generic .create() appends .select().single(),
+        // which makes Postgres re-check SELECT and 401 the whole insert. Bypass the shim.
+        await supabase.from("calculator_usage").insert({
           labor_hours: h,
           labor_rate: rate,
           labor_burden_percent: burden,

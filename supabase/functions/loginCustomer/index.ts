@@ -1,10 +1,14 @@
 import { entities } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { newSessionToken, rateLimited, tooMany } from '../_shared/security.ts';
 import bcrypt from 'npm:bcryptjs@2.4.3';
+
+const DUMMY_HASH = bcrypt.hashSync(crypto.randomUUID(), 10);
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    if (rateLimited(req, 'loginCustomer')) return tooMany(corsHeaders);
     const { email, password } = await req.json();
 
     if (!email || !password) {
@@ -22,37 +26,9 @@ Deno.serve(async (req) => {
     let customer = customers[0];
 
     if (!customer) {
-      const users = await entities.User.filter({ email: normalizedEmail });
-      if (users.length === 0) {
-        return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
-      }
-
-      const password_hash = await bcrypt.hash(password, 10);
-      const session_token = crypto.randomUUID() + '-' + crypto.randomUUID();
-      const trial_ends_at = new Date();
-      trial_ends_at.setDate(trial_ends_at.getDate() + 14);
-
-      customer = await entities.Customer.create({
-        email: normalizedEmail,
-        password_hash,
-        session_token,
-        full_name: users[0].full_name || '',
-        subscription_status: 'trial',
-        trial_ends_at: trial_ends_at.toISOString(),
-      });
-
-      return Response.json({
-        session_token,
-        customer: {
-          id: customer.id,
-          email: customer.email,
-          full_name: customer.full_name,
-          subscription_status: customer.subscription_status,
-          trial_ends_at: customer.trial_ends_at,
-          subscription_plan: customer.subscription_plan,
-          stripe_customer_id: customer.stripe_customer_id,
-        }
-      }, { headers: corsHeaders });
+      // No auto-provisioning from platform users: that allowed account pre-hijack with an arbitrary password.
+      await bcrypt.compare(password, DUMMY_HASH); // constant-ish timing
+      return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
 
     const valid = await bcrypt.compare(password, customer.password_hash);
@@ -60,7 +36,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
 
-    const session_token = crypto.randomUUID() + '-' + crypto.randomUUID();
+    const session_token = newSessionToken();
     await entities.Customer.update(customer.id, { session_token });
 
     return Response.json({

@@ -1,5 +1,6 @@
 import { entities, authMe } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { newSessionToken } from '../_shared/security.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -20,7 +21,7 @@ Deno.serve(async (req) => {
     const customers = await entities.Customer.filter({ email: normalizedEmail });
     let customer = customers[0];
 
-    const session_token = crypto.randomUUID() + '-' + crypto.randomUUID();
+    const session_token = newSessionToken();
 
     if (customer) {
       await entities.Customer.update(customer.id, { session_token });

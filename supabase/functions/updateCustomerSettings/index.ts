@@ -1,5 +1,6 @@
 import { entities, authMe } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sessionFresh } from '../_shared/security.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -21,7 +22,7 @@ Deno.serve(async (req) => {
 
     const customer = customers[0];
 
-    if (customer.session_token !== session_token) {
+    if (customer.session_token !== session_token || !sessionFresh(session_token)) {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 

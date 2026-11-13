@@ -51,21 +51,28 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">5. Data Retention</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">5. AI and Third-Party Processors</h2>
+          <p>
+            To provide the Service we use third-party processors that handle data on our behalf: Stripe (payments), Supabase (database and hosting), SendGrid (transactional email), and Anthropic (AI-generated proposals and analysis). When you use AI features, the content you submit for that request (such as job details and proposal inputs) is sent to the AI provider to generate a response. We do not allow these processors to use your data to train their models under our agreements and settings, and we do not sell your personal information.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">6. Data Retention</h2>
           <p>
             We retain your data for as long as your account is active or as needed to provide services. You may request deletion of your account and associated data at any time by contacting us. We may retain certain data as required by law or for legitimate business purposes (e.g., resolving disputes, preventing fraud).
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">6. Security</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">7. Security</h2>
           <p>
             We implement industry-standard technical and organizational safeguards to protect your data, including encryption in transit (TLS) and at rest. However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security but are committed to protecting your information.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">7. Your Rights</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">8. Your Rights</h2>
           <p>Depending on your location, you may have the right to:</p>
           <ul className="list-disc pl-5 space-y-1 mt-2">
             <li>Access the personal data we hold about you.</li>
@@ -74,45 +81,46 @@ export default function PrivacyPolicy() {
             <li>Object to or restrict certain processing activities.</li>
             <li>Data portability (where applicable).</li>
           </ul>
+                    <p className="mt-2"><strong>California (CCPA/CPRA):</strong> California residents have the right to know what personal information we collect, use, and disclose; to request deletion and correction; to opt out of the sale or sharing of personal information (we do not sell or share it for cross-context advertising); and to not be discriminated against for exercising these rights. <strong>EEA/UK (GDPR):</strong> where applicable, we process personal data on the legal bases of contract performance, legitimate interests, legal obligation, and consent, you may lodge a complaint with your local data protection authority, and your data may be transferred to and processed in the United States under appropriate safeguards. We respond to verified requests within 30 days (45 days under CCPA, extendable once).</p>
           <p className="mt-2">To exercise any of these rights, contact us at the email below.</p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">8. Cookies</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">9. Cookies</h2>
           <p>
             We may use cookies and similar tracking technologies to enhance your experience, analyze usage, and remember preferences. You can control cookie settings through your browser. Disabling cookies may affect some app functionality.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">9. Third-Party Links</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">10. Third-Party Links</h2>
           <p>
             Our app may contain links to third-party websites. We are not responsible for the privacy practices or content of those sites and encourage you to review their privacy policies.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">10. Children's Privacy</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">11. Children's Privacy</h2>
           <p>
             Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal data, we will delete it promptly.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">11. Changes to This Policy</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">12. Changes to This Policy</h2>
           <p>
             We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy in the app and updating the "Last updated" date. Your continued use of the app after changes constitutes acceptance of the updated policy.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">12. Contact Us</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">13. Contact Us</h2>
           <p>
             If you have questions or concerns about this Privacy Policy, please contact us at:
           </p>
           <div className="mt-2 p-4 bg-slate-50 rounded-lg border border-slate-200">
             <p className="font-medium text-slate-900">Contractor Profitability Suite</p>
-            <p>Email: <a href="mailto:privacy@contractorprofitabilitysuite.app" className="text-blue-600 hover:underline">privacy@contractorprofitabilitysuite.app</a></p>
+            <p>Email: <a href="mailto:privacy@contractorprofitabilitysuite.com" className="text-blue-600 hover:underline">privacy@contractorprofitabilitysuite.com</a></p>
           </div>
         </section>
       </div>

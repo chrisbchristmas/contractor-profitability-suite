@@ -1,6 +1,7 @@
 import { entities, supa } from '../_shared/base44compat.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sessionFresh } from '../_shared/security.ts';
 
 // Mint a real Supabase Auth session for this customer so row-level security
 // (auth.uid()) can isolate each tenant's data.
@@ -24,6 +25,10 @@ Deno.serve(async (req) => {
 
     const customers = await entities.Customer.filter({ session_token });
     if (customers.length === 0) {
+      return Response.json({ error: 'Invalid or expired session' }, { status: 401, headers: corsHeaders });
+    }
+
+    if (!sessionFresh(session_token)) {
       return Response.json({ error: 'Invalid or expired session' }, { status: 401, headers: corsHeaders });
     }
 

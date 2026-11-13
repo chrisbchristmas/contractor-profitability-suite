@@ -1,6 +1,7 @@
 // NOTE: Requires ANTHROPIC_API_KEY as a Supabase Edge Function secret.
 import { entities } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sessionFresh, hasAccess } from '../_shared/security.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -17,8 +18,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
     const customer = customers[0];
-    if (customer.session_token !== session_token) {
+    if (customer.session_token !== session_token || !sessionFresh(session_token)) {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+    }
+
+    if (!hasAccess(customer)) {
+      return Response.json({ error: 'Subscription required' }, { status: 402, headers: corsHeaders });
     }
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');

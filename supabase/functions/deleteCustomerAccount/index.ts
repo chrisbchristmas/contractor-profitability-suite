@@ -1,5 +1,6 @@
 import { entities, sendEmail } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sessionFresh } from '../_shared/security.ts';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 import Stripe from 'npm:stripe@14.21.0';
 
@@ -47,7 +48,7 @@ Deno.serve(async (req) => {
     }
     const customer = customers[0];
 
-    if (customer.session_token !== session_token) {
+    if (customer.session_token !== session_token || !sessionFresh(session_token)) {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 

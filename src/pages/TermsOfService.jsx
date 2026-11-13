@@ -31,6 +31,7 @@ export default function TermsOfService() {
           </p>
           <ul className="list-disc pl-5 space-y-1 mt-2">
             <li><strong>Auto-renewal:</strong> Subscriptions automatically renew at the end of each billing cycle unless canceled before the renewal date.</li>
+            <li><strong>Renewal notice:</strong> Your subscription renews at the then-current price each month. You can cancel online at any time before renewal via the billing portal in your account settings. Free-trial users are charged automatically when the trial ends unless they cancel first, and we will send a reminder email before the first charge where required by law.</li>
             <li><strong>Cancellation:</strong> You may cancel your subscription at any time from your account settings or by contacting support. Cancellation stops future billing cycles but does not refund the current paid period.</li>
             <li><strong>Price changes:</strong> We may change subscription fees with reasonable advance notice. Any price change takes effect at the start of your next billing cycle following the notice.</li>
           </ul>
@@ -80,27 +81,51 @@ export default function TermsOfService() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">9. Governing Law</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">9. Estimates Are Not Professional Advice</h2>
           <p>
-            These Terms are governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict-of-laws principles. You and we submit to the exclusive jurisdiction of the state and federal courts located in Delaware for any dispute arising out of or related to these Terms or the Service.
+            The Service produces cost estimates, margin calculations, proposals, and profit analyses based on information you enter. These outputs are informational tools only. They are not accounting, tax, legal, engineering, or other professional advice, and we do not guarantee their accuracy or completeness. You are solely responsible for verifying all figures and for the pricing, bids, contracts, and business decisions you make using the Service. AI-generated content may contain errors and must be reviewed before you rely on it or send it to a client.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">10. Changes to These Terms</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">10. Indemnification</h2>
+          <p>
+            You agree to indemnify, defend, and hold harmless the Service operator, its owners, and its contractors from any claims, damages, losses, and expenses (including reasonable attorneys' fees) arising out of your use of the Service, your content, your bids, estimates, or contracts with your own customers, your violation of these Terms, or your violation of any law or third-party right.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">11. Dispute Resolution; Arbitration; Class Action Waiver</h2>
+          <p>
+            Before filing a claim, you agree to contact us at legal@contractorprofitabilitysuite.com and try to resolve the dispute informally for at least 30 days. If it is not resolved, any dispute arising out of or relating to these Terms or the Service will be resolved by binding individual arbitration administered by the American Arbitration Association under its Consumer Arbitration Rules, instead of in court, except that either party may bring an individual claim in small-claims court and either party may seek injunctive relief in court to protect intellectual property.
+          </p>
+          <p className="mt-2">
+            You and we agree to bring claims only in an individual capacity and not as a plaintiff or class member in any purported class, collective, or representative action. The arbitrator may not consolidate claims or preside over any class proceeding. You may opt out of this arbitration clause within 30 days of first accepting these Terms by emailing legal@contractorprofitabilitysuite.com. If this clause is found unenforceable, Section 12 governs.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">12. Governing Law</h2>
+          <p>
+            These Terms are governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict-of-laws principles. You and we submit to the exclusive jurisdiction of the state and federal courts located in Delaware for any dispute not subject to arbitration under Section 11 arising out of or related to these Terms or the Service.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">13. Changes to These Terms</h2>
           <p>
             We may update these Terms from time to time. We will post the revised Terms in the app and update the "Last updated" date. Your continued use of the Service after changes are posted constitutes your acceptance of the updated Terms.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">11. Contact Us</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">14. Contact Us</h2>
           <p>
             If you have questions or concerns about these Terms, please contact us at:
           </p>
           <div className="mt-2 p-4 bg-slate-50 rounded-lg border border-slate-200">
             <p className="font-medium text-slate-900">Contractor Profitability Suite</p>
-            <p>Email: <a href="mailto:legal@contractorprofitabilitysuite.app" className="text-blue-600 hover:underline">legal@contractorprofitabilitysuite.app</a></p>
+            <p>Email: <a href="mailto:legal@contractorprofitabilitysuite.com" className="text-blue-600 hover:underline">legal@contractorprofitabilitysuite.com</a></p>
           </div>
         </section>
       </div>

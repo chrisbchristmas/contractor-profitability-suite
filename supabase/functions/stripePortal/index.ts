@@ -1,6 +1,7 @@
 // NOTE: Requires STRIPE_SECRET_KEY as a Supabase Edge Function secret — manual config.
 import { entities } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sessionFresh } from '../_shared/security.ts';
 import Stripe from 'npm:stripe@14.21.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -19,7 +20,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Authentication required' }, { status: 401, headers: corsHeaders });
     }
     const customer = customers[0];
-    if (customer.session_token !== session_token) {
+    if (customer.session_token !== session_token || !sessionFresh(session_token)) {
       return Response.json({ error: 'Authentication required' }, { status: 401, headers: corsHeaders });
     }
 

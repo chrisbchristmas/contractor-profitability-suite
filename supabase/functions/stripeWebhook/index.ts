@@ -10,6 +10,7 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 Deno.serve(async (req) => {
   const sig = req.headers.get('stripe-signature');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  if (!sig || !webhookSecret) return new Response('Webhook Error', { status: 400 });
   const body = await req.text();
 
   let event;
@@ -91,6 +92,8 @@ Deno.serve(async (req) => {
     }
   } catch (err) {
     console.error('Webhook processing error:', err.message);
+    // Non-2xx so Stripe retries instead of silently dropping a paid customer's activation.
+    return new Response('Processing error', { status: 500 });
   }
 
   return Response.json({ received: true });

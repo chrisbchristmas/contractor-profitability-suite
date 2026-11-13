@@ -1,9 +1,11 @@
 import { entities, sendEmail } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rateLimited, tooMany } from '../_shared/security.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    if (rateLimited(req, 'forgotPassword', 5)) return tooMany(corsHeaders);
     const { email } = await req.json();
 
     if (!email || typeof email !== 'string' || email.startsWith('$')) {

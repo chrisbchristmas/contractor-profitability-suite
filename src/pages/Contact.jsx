@@ -29,11 +29,11 @@ export default function Contact() {
             We're here to help. Send us an email and our support team will get back to you as soon as possible.
           </p>
           <a
-            href="mailto:support@contractorprofitabilitysuite.app"
+            href="mailto:support@contractorprofitabilitysuite.com"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
           >
             <Mail className="h-4 w-4" />
-            support@contractorprofitabilitysuite.app
+            support@contractorprofitabilitysuite.com
           </a>
         </div>
       </main>
