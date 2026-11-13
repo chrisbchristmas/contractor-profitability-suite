@@ -47,6 +47,8 @@ Deno.serve(async (req) => {
         trial_ends_at: customer.trial_ends_at,
         subscription_plan: customer.subscription_plan,
         stripe_customer_id: customer.stripe_customer_id,
+        // Single-tenant account, no team/invite feature — customer always owns their data.
+        role: 'Owner',
       }
     }, { headers: corsHeaders });
   } catch (error) {

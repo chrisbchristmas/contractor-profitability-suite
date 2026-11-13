@@ -49,6 +49,11 @@ Deno.serve(async (req) => {
         subscription_plan: customer.subscription_plan,
         stripe_customer_id: customer.stripe_customer_id,
         trade: customer.trade,
+        // Every Customer account is single-tenant with no team/invite feature,
+        // so each customer is always the Owner of their own data. Without this,
+        // canViewJob/canEditJob/canViewFinancials (permissions.jsx) see
+        // user.role === undefined and silently hide/block everything.
+        role: 'Owner',
       }
     }, { headers: corsHeaders });
   } catch (error) {
