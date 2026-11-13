@@ -27,8 +27,6 @@ const PLANS = [
     description: "For growing contractor teams",
     features: [
       "Everything in Solo",
-      "Team members",
-      "Advanced reporting",
       "Priority support",
       "14-day free trial",
     ],

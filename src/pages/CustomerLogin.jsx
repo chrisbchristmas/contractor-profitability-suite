@@ -23,6 +23,7 @@ export default function CustomerLogin() {
   const [searchParams] = useSearchParams();
 
   const [view, setView] = useState('login'); // 'login' | 'register' | 'forgot' | 'reset'
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -105,7 +106,7 @@ export default function CustomerLogin() {
 
     setLoading(true);
     try {
-      const res = await base44.functions.invoke('registerCustomer', { email, password });
+      const res = await base44.functions.invoke('registerCustomer', { full_name: fullName, email, password });
       await login(res.data.session_token, res.data.customer);
       navigate('/Billing');
     } catch (err) {
@@ -208,8 +209,8 @@ export default function CustomerLogin() {
                   <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
                   <Input
                     placeholder="John Smith"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     required
                     autoFocus
                   />
