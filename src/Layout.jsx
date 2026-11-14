@@ -128,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Page content with slide transition */}
         <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence initial={false}>
             <motion.div
               key={location.pathname + location.search}
               initial={{ x: 30, opacity: 0 }}
