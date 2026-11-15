@@ -1,7 +1,7 @@
 import { entities, supa } from '../_shared/base44compat.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import { corsHeaders } from '../_shared/cors.ts';
-import { sessionFresh } from '../_shared/security.ts';
+import { sessionFresh, hasAccess } from '../_shared/security.ts';
 
 // Mint a real Supabase Auth session for this customer so row-level security
 // (auth.uid()) can isolate each tenant's data.
@@ -36,7 +36,8 @@ Deno.serve(async (req) => {
     delete customer.password_hash;
     delete customer.session_token;
 
-    const supabase_session = await mintSupabaseSession(customer.email);
+    // Server-side paywall: no data session once the trial/subscription has lapsed (UI routes them to Billing).
+    const supabase_session = hasAccess(customer) ? await mintSupabaseSession(customer.email) : null;
 
     return Response.json({
       supabase_session,

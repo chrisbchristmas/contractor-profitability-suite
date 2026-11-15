@@ -180,26 +180,7 @@ export default function CustomerLogin() {
         </div>
 
         <div className="bg-card rounded-2xl border border-border shadow-sm p-8">
-          {/* Google OAuth — shown for login and register views */}
-          {(isLogin || isRegister) && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-11 mb-4 border-border"
-                onClick={handleGoogleAuth}
-                disabled={loading}
-              >
-                <GoogleIcon />
-                <span className="ml-2">Continue with Google</span>
-              </Button>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-            </>
-          )}
+          {/* Google sign-in removed: Supabase Google provider is not configured (button only reloaded /login). */}
 
           {/* Login / Register form */}
           {(isLogin || isRegister) && (

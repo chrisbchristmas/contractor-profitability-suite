@@ -1,5 +1,6 @@
 import { sendEmail } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rateLimited, tooMany } from '../_shared/security.ts';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,13 +45,18 @@ function buildBody(calcResult, source, trade) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    if (rateLimited(req, 'sendLeadWelcome', 3, 60 * 60_000)) return tooMany(corsHeaders);
     const body = await req.json();
     const email = (body.email || "").trim();
-    if (!EMAIL_RE.test(email)) {
+    if (!EMAIL_RE.test(email) || email.length > 254) {
       return Response.json({ error: "A valid email is required" }, { status: 400, headers: corsHeaders });
     }
 
-    const text = buildBody(body.calc_result, body.source, body.trade);
+    // Public endpoint sends from our domain: only numbers and short plain labels, so it can't relay spam/phishing links.
+    const label = (v) => (typeof v === "string" && /^[\w\s&()%-]{1,60}$/.test(v) ? v : "");
+    const calc = Object.fromEntries(Object.entries(body.calc_result && typeof body.calc_result === "object" ? body.calc_result : {})
+      .filter(([k, v]) => label(k) && (typeof v === "number" ? Number.isFinite(v) : label(v))).slice(0, 25));
+    const text = buildBody(calc, label(body.source), label(body.trade));
 
     await sendEmail({
       to: email,

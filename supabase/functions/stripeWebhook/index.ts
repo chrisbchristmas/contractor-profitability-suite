@@ -1,11 +1,34 @@
-// NOTE: Requires STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET as Supabase Edge Function
-// secrets. These are account-specific Stripe credentials — set them manually via:
-//   supabase secrets set STRIPE_SECRET_KEY=sk_live_... STRIPE_WEBHOOK_SECRET=whsec_...
-// This function was NOT auto-configured with real Stripe credentials.
+// Requires STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_SOLO_PRICE_ID, STRIPE_PRO_PRICE_ID as secrets.
 import { entities } from '../_shared/base44compat.ts';
 import Stripe from 'npm:stripe@14.21.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+const PLAN_BY_PRICE = {
+  [Deno.env.get('STRIPE_SOLO_PRICE_ID')]: 'solo',
+  [Deno.env.get('STRIPE_PRO_PRICE_ID')]: 'pro',
+};
+
+// The Stripe account is shared with other products (e.g. CollectrBrief): only act on CPS subscriptions.
+const cpsPlan = (sub) => sub?.items?.data?.map((i) => PLAN_BY_PRICE[i.price?.id]).find(Boolean);
+
+async function findCustomer({ userId, stripeCustomerId, email }) {
+  if (userId) { const r = await entities.Customer.filter({ id: userId }); if (r[0]) return r[0]; }
+  if (stripeCustomerId) { const r = await entities.Customer.filter({ stripe_customer_id: stripeCustomerId }); if (r[0]) return r[0]; }
+  if (email) { const r = await entities.Customer.filter({ email: email.toLowerCase().trim() }); if (r[0]) return r[0]; }
+  return null;
+}
+
+async function apply(target, fields) {
+  const customer = await findCustomer(target);
+  if (!customer) { console.warn('[stripeWebhook] no matching customer', target); return; }
+  await entities.Customer.update(customer.id, fields);
+  // Mirror onto app_user (keyed by created_by = email; app_user has no email column). Best-effort only.
+  try {
+    const users = await entities.User.filter({ created_by: customer.email });
+    if (users[0]) await entities.User.update(users[0].id, fields);
+  } catch (e) { console.warn('[stripeWebhook] app_user mirror skipped:', e.message); }
+  console.log(`[stripeWebhook] ${customer.email} ->`, fields);
+}
 
 Deno.serve(async (req) => {
   const sig = req.headers.get('stripe-signature');
@@ -23,71 +46,27 @@ Deno.serve(async (req) => {
 
   try {
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      const userEmail = session.metadata?.user_email || session.customer_email;
-      const plan = session.metadata?.plan;
-
-      if (userEmail) {
-        const customers = await entities.Customer.filter({ email: userEmail });
-        if (customers.length > 0) {
-          await entities.Customer.update(customers[0].id, {
-            subscription_status: 'active',
-            subscription_plan: plan,
-            stripe_customer_id: session.customer,
-          });
-          console.log(`[Customer] Activated subscription for ${userEmail}, plan: ${plan}`);
-        }
-
-        const users = await entities.User.filter({ email: userEmail });
-        if (users.length > 0) {
-          await entities.User.update(users[0].id, {
-            subscription_status: 'active',
-            subscription_plan: plan,
-            stripe_customer_id: session.customer,
-          });
-          console.log(`[User] Activated subscription for ${userEmail}, plan: ${plan}`);
-        }
+      const s = event.data.object;
+      const plan = s.metadata?.plan;
+      if (s.mode === 'subscription' && (plan === 'solo' || plan === 'pro')) {
+        await apply(
+          { userId: s.metadata?.user_id, email: s.metadata?.user_email || s.customer_details?.email || s.customer_email },
+          { subscription_status: 'active', subscription_plan: plan, stripe_customer_id: s.customer },
+        );
       }
     }
 
-    if (event.type === 'customer.subscription.updated') {
+    if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
       const sub = event.data.object;
-      const customer = await stripe.customers.retrieve(sub.customer);
-      const email = customer.email;
-      const status = sub.status === 'active' || sub.status === 'trialing' ? 'active' : sub.status;
-
-      if (email) {
-        const customers = await entities.Customer.filter({ email });
-        if (customers.length > 0) {
-          await entities.Customer.update(customers[0].id, { subscription_status: status });
-          console.log(`[Customer] Updated subscription status for ${email}: ${status}`);
-        }
-
-        const users = await entities.User.filter({ email });
-        if (users.length > 0) {
-          await entities.User.update(users[0].id, { subscription_status: status });
-          console.log(`[User] Updated subscription status for ${email}: ${status}`);
-        }
-      }
-    }
-
-    if (event.type === 'customer.subscription.deleted') {
-      const sub = event.data.object;
-      const customer = await stripe.customers.retrieve(sub.customer);
-      const email = customer.email;
-
-      if (email) {
-        const customers = await entities.Customer.filter({ email });
-        if (customers.length > 0) {
-          await entities.Customer.update(customers[0].id, { subscription_status: 'canceled' });
-          console.log(`[Customer] Canceled subscription for ${email}`);
-        }
-
-        const users = await entities.User.filter({ email });
-        if (users.length > 0) {
-          await entities.User.update(users[0].id, { subscription_status: 'canceled' });
-          console.log(`[User] Canceled subscription for ${email}`);
-        }
+      const plan = cpsPlan(sub);
+      if (plan) {
+        const deleted = event.type === 'customer.subscription.deleted';
+        const status = deleted ? 'canceled' : (sub.status === 'active' || sub.status === 'trialing' ? 'active' : sub.status);
+        const sc = await stripe.customers.retrieve(sub.customer);
+        await apply(
+          { userId: sub.metadata?.user_id, stripeCustomerId: sub.customer, email: sc?.email },
+          deleted ? { subscription_status: status } : { subscription_status: status, subscription_plan: plan },
+        );
       }
     }
   } catch (err) {
