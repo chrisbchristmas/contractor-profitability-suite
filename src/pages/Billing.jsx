@@ -27,7 +27,7 @@ const PLANS = [
     price: 39,
     icon: Shield,
     description: "For growing contractor teams",
-    features: ["Everything in Solo", "Team members", "Advanced reporting", "Priority support", "14-day free trial"],
+    features: ["Everything in Solo", "Priority support", "14-day free trial"],
     popular: true,
   },
 ];

@@ -64,7 +64,7 @@ const faqs = [
   },
   {
     q: "Will it work for my trade?",
-    a: "Yes. HVAC, electrical, plumbing, roofing, remodeling, and general contracting crews use it daily.",
+    a: "Yes. It is built for HVAC, electrical, plumbing, roofing, remodeling, and general contracting work, with trade-specific calculators and guides.",
   },
   {
     q: "How long does setup take?",
@@ -72,7 +72,7 @@ const faqs = [
   },
   {
     q: "Can my crew use it?",
-    a: "Yes. The Pro plan includes team members, so your crew can log time and daily logs while you watch margins.",
+    a: "Not yet. Accounts are single-user today, so you log time per job yourself. Crew logins are on the roadmap.",
   },
   {
     q: "Can I cancel anytime?",
