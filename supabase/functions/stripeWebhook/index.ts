@@ -12,7 +12,8 @@ const PLAN_BY_PRICE = {
 const cpsPlan = (sub) => sub?.items?.data?.map((i) => PLAN_BY_PRICE[i.price?.id]).find(Boolean);
 
 async function findCustomer({ userId, stripeCustomerId, email }) {
-  if (userId) { const r = await entities.Customer.filter({ id: userId }); if (r[0]) return r[0]; }
+  // Legacy Base44 subs carry non-UUID user_ids; querying the uuid column with them throws.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId || '')) { const r = await entities.Customer.filter({ id: userId }); if (r[0]) return r[0]; }
   if (stripeCustomerId) { const r = await entities.Customer.filter({ stripe_customer_id: stripeCustomerId }); if (r[0]) return r[0]; }
   if (email) { const r = await entities.Customer.filter({ email: email.toLowerCase().trim() }); if (r[0]) return r[0]; }
   return null;
