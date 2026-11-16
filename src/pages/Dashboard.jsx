@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProfitPaceCard from "@/components/dashboard/ProfitPaceCard";
 import ProfitAtRiskCard from "@/components/dashboard/ProfitAtRiskCard";
 import CashFlowCard from "@/components/dashboard/CashFlowCard";
-import { calculateJobMargins, calculateProfitAtRisk, calculateUpcomingCollections, calculateContractorPerformance } from "@/components/changeorders/CalculationEngine";
+import { calculateJobMargins, calculateProfitAtRisk, calculateUpcomingCollections, calculateContractorPerformance, coRevenuePreTax } from "@/components/changeorders/CalculationEngine";
 import ContractorPerformanceBar from "@/components/dashboard/ContractorPerformanceBar";
 import MostProfitableJobs from "@/components/dashboard/MostProfitableJobs";
 import ProfitForecastWidget from "@/components/dashboard/ProfitForecastWidget";
@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   const activeJobs = jobs.filter(j => j.status === "active");
   const approvedCOs = changeOrders.filter(co => co.status === "approved");
-  const totalFinalPrice = approvedCOs.reduce((s, co) => s + (co.final_price_to_client || co.sell_price || 0), 0);
+  const totalFinalPrice = approvedCOs.reduce((s, co) => s + coRevenuePreTax(co), 0); // pre-tax: tax isn't margin
   const totalCost = approvedCOs.reduce((s, co) => s + (co.total_cost || 0), 0);
   const now = new Date();
   const thisMonthLeakage = changeOrders

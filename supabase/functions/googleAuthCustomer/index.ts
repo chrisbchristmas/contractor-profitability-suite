@@ -16,6 +16,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Google authentication required' }, { status: 401, headers: corsHeaders });
     }
 
+    // Only a genuine OAuth sign-in proves email ownership. Crew logins (owner-chosen password) and
+    // magic-link data sessions must never be exchangeable for a Customer session (account takeover).
+    let amr: { method?: string }[] = [];
+    try {
+      const tok = (req.headers.get('Authorization') || '').replace('Bearer ', '');
+      const p = tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      amr = JSON.parse(atob(p + '='.repeat((4 - p.length % 4) % 4))).amr || [];
+    } catch { /* falls through to reject */ }
+    const isOauth = amr.some((a) => a?.method === 'oauth');
+    if (!isOauth || user.role === 'crew' || user.user_metadata?.crew) {
+      return Response.json({ error: 'Google authentication required' }, { status: 401, headers: corsHeaders });
+    }
+
     const normalizedEmail = user.email.toLowerCase().trim();
 
     const customers = await entities.Customer.filter({ email: normalizedEmail });

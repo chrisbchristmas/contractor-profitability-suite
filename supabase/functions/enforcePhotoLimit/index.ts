@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
       const user = await authMe(req);
       if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
 
-      const owned = await entities.ChangeOrder.filter({ id: body.change_order_id });
+      const owned = await entities.ChangeOrder.filter({ id: body?.event?.entity_id, created_by_id: user.id });
       if (!owned || owned.length === 0) return Response.json({ error: 'Not found' }, { status: 403, headers: corsHeaders });
     }
 

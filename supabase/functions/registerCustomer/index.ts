@@ -1,4 +1,4 @@
-import { entities } from '../_shared/base44compat.ts';
+import { entities, supa } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { newSessionToken, rateLimited, tooMany } from '../_shared/security.ts';
 import bcrypt from 'npm:bcryptjs@2.4.3';
@@ -20,6 +20,12 @@ Deno.serve(async (req) => {
 
     const existing = await entities.Customer.filter({ email: normalizedEmail });
     if (existing.length > 0) {
+      return Response.json({ error: 'An account with this email already exists' }, { status: 409, headers: corsHeaders });
+    }
+
+    // Crew logins share Supabase Auth users; reusing one would hand this account's data session to the crew's owner.
+    const { data: crew } = await supa.from('crew_member').select('id').eq('email', normalizedEmail).limit(1);
+    if (crew && crew.length > 0) {
       return Response.json({ error: 'An account with this email already exists' }, { status: 409, headers: corsHeaders });
     }
 

@@ -4,6 +4,7 @@ import { Shield, CheckCircle, ArrowRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSeoTitle } from "@/components/seo/SeoMeta";
+import { SOLO_FEATURES, PRO_FEATURES } from "@/lib/plans";
 
 const PLANS = [
   {
@@ -12,12 +13,7 @@ const PLANS = [
     price: 19,
     icon: Zap,
     description: "Perfect for individual contractors",
-    features: [
-      "Unlimited change orders",
-      "PDF exports",
-      "Audit log",
-      "14-day free trial",
-    ],
+    features: SOLO_FEATURES,
   },
   {
     id: "pro",
@@ -25,11 +21,7 @@ const PLANS = [
     price: 39,
     icon: Shield,
     description: "For growing contractor teams",
-    features: [
-      "Everything in Solo",
-      "Priority support",
-      "14-day free trial",
-    ],
+    features: ["Everything in Solo", ...PRO_FEATURES],
     popular: true,
   },
 ];

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Edit, Trash2, Lock, TrendingDown, Minus, TrendingUp, Send, Copy, CheckCircle, Clock, PenLine, Paperclip, XCircle, History } from "lucide-react";
+import { AlertTriangle, Edit, Trash2, Lock, TrendingDown, Minus, TrendingUp, Send, Copy, CheckCircle, Clock, PenLine, Paperclip, XCircle, History, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canEditCO, canDeleteCO } from "@/components/auth/permissions";
 import PhotoGallery from "./PhotoGallery";
@@ -84,6 +84,19 @@ export default function ChangeOrderCard({ co, targetMargin, currentUser, showFin
     setTimeout(() => setCopiedMsg(false), 2500);
   };
 
+  // Opens the phone's own Messages app pre-filled (free — no SMS gateway).
+  const handleTextLink = (e) => {
+    e.stopPropagation();
+    if (!co.approval_token) return;
+    const url = `${window.location.origin}/ApproveChangeOrder?token=${co.approval_token}`;
+    const client = job?.client_name || co.client_name || "there";
+    const jobName = job?.job_name || "your project";
+    const msg = `Hi ${client}, please review and approve this change order for ${jobName}: ${url}`;
+    const phone = (job?.client_phone || co.client_phone || "").replace(/[^\d+]/g, "");
+    const sep = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) ? "&" : "?";
+    window.location.href = `sms:${phone}${sep}body=${encodeURIComponent(msg)}`;
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between mb-3">
@@ -130,6 +143,9 @@ export default function ChangeOrderCard({ co, targetMargin, currentUser, showFin
               </Button>
               <Button variant="ghost" size="sm" className={cn("h-6 px-2 text-xs", co.status === "viewed" ? "text-blue-700 hover:bg-blue-100" : "text-amber-700 hover:bg-amber-100")} onClick={handleCopyMessage}>
                 {copiedMsg ? <><CheckCircle className="h-3 w-3 mr-1" /> Copied!</> : <><Copy className="h-3 w-3 mr-1" /> Copy Message</>}
+              </Button>
+              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-emerald-700 hover:bg-emerald-100" onClick={handleTextLink}>
+                <MessageSquare className="h-3 w-3 mr-1" /> Text Link
               </Button>
             </div>
           )}

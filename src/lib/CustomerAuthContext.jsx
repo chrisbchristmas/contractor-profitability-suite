@@ -47,7 +47,9 @@ export const CustomerAuthProvider = ({ children }) => {
   const login = async (session_token, customerData) => {
     localStorage.setItem(TOKEN_KEY, session_token);
     try { await syncDataSession(session_token, customerData?.email); } catch (e) { console.error('data session failed', e); }
-    setCustomer(customerData);
+    // Login/register return a trimmed customer; fetch the full row so Settings and plan checks see every field.
+    const full = await base44.functions.invoke('getCustomerSession', { session_token }).then(r => r.data?.customer).catch(() => null);
+    setCustomer(full || customerData);
   };
 
   const logout = () => {

@@ -1,3 +1,9 @@
 # Stripe calls the webhook without a Supabase JWT; auth is the Stripe signature.
 [functions.stripeWebhook]
 verify_jwt = false
+
+[functions.payInvoice]
+verify_jwt = false
+
+[functions.weeklyDigest]
+verify_jwt = false

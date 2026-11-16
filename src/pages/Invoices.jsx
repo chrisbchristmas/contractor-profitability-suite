@@ -13,6 +13,22 @@ import QbExportButton from "@/components/exports/QbExportButton";
 import { invoicesToQboCsv } from "@/lib/qbExport";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { useCustomerAuth } from "@/lib/CustomerAuthContext";
+import { isPro } from "@/lib/plans";
+
+// Copies the public Stripe pay link (payInvoice edge function). Pro + Stripe Connect only.
+function PayLinkButton({ inv, className }) {
+  const { customer } = useCustomerAuth();
+  if (!inv.pay_token || inv.status === "draft" || inv.status === "paid" || !isPro(customer)) return null;
+  const copy = async () => {
+    if (!customer?.connect_charges_enabled) { toast.error("Connect Stripe in Settings to accept online payments"); return; }
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payInvoice?t=${inv.pay_token}`;
+    try { await navigator.clipboard.writeText(url); toast.success("Pay link copied — paste it in a text or email"); }
+    catch { window.prompt("Copy this pay link:", url); }
+  };
+  return <Button size="sm" variant="outline" className={className} onClick={copy}>Pay Link</Button>;
+}
 
 const STATUS_CONFIG = {
   draft: { label: "Draft", color: "bg-slate-100 text-slate-600", icon: FileText, rowColor: "" },
@@ -211,6 +227,7 @@ export default function Invoices() {
                           Mark Paid
                         </Button>
                       )}
+                      <PayLinkButton inv={inv} className="text-xs min-h-[44px] px-3 text-blue-600 border-blue-200" />
                       <Button size="sm" variant="ghost" className="text-xs min-h-[44px] min-w-[44px]" onClick={() => { setEditingInvoice(inv); setShowCreate(true); }}>
                         Edit
                       </Button>
@@ -278,6 +295,7 @@ export default function Invoices() {
                               Mark Paid
                             </Button>
                           )}
+                          <PayLinkButton inv={inv} className="text-xs h-8 text-blue-600 border-blue-200" />
                           <Button size="sm" variant="ghost" className="text-xs h-8" onClick={() => { setEditingInvoice(inv); setShowCreate(true); }}>
                             Edit
                           </Button>
@@ -293,6 +311,7 @@ export default function Invoices() {
       )}
 
       <InvoiceDialog
+        invoices={invoices}
         open={showCreate}
         onClose={() => { setShowCreate(false); setEditingInvoice(null); }}
         invoice={editingInvoice}

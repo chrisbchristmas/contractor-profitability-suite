@@ -8,11 +8,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Plus, FileText, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import StressTestPanel from "@/components/estimates/StressTestPanel";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 export default function Estimates() {
   const [showCreate, setShowCreate] = useState(false);
   const [selected, setSelected] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: estimates = [], isLoading } = useQuery({
     queryKey: ["estimates"],
@@ -22,6 +26,32 @@ export default function Estimates() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Estimate.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["estimates"] }),
+  });
+
+  // Won the bid: copy the estimate's numbers into a new job so nothing is retyped.
+  const convertMutation = useMutation({
+    mutationFn: (est) => {
+      const labor = est.estimated_labor_cost || 0, material = est.estimated_material_cost || 0;
+      const subs = est.estimated_subcontractor_cost || 0, overhead = est.estimated_overhead || 0;
+      return base44.entities.Job.create({
+        job_name: est.estimate_name,
+        contract_value: est.contract_price || 0,
+        contract_price: est.contract_price || 0,
+        estimated_cost: labor + material + subs + overhead,
+        estimated_labor_cost: labor,
+        estimated_material_cost: material,
+        estimated_subcontractor_cost: subs,
+        overhead_cost: overhead,
+        target_margin_percent: est.target_margin_percent ?? undefined,
+        start_date: new Date().toISOString().slice(0, 10),
+      });
+    },
+    onSuccess: (job) => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      toast.success("Job created from estimate");
+      navigate(createPageUrl("JobDetail") + `?id=${job.id}`);
+    },
+    onError: () => toast.error("Couldn't create the job"),
   });
 
   return (
@@ -93,6 +123,11 @@ export default function Estimates() {
               <DialogTitle>Stress Test — {selected.estimate_name}</DialogTitle>
             </DialogHeader>
             <StressTestPanel estimate={selected} />
+            <DialogFooter>
+              <Button className="bg-emerald-600 hover:bg-emerald-700" disabled={convertMutation.isPending} onClick={() => convertMutation.mutate(selected)}>
+                {convertMutation.isPending ? "Creating job..." : "Won it — convert to job"}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}

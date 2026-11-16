@@ -24,6 +24,7 @@ const TABLES = {
   LeakageFlag: 'leakage_flag',
   LienWaiver: 'lien_waiver',
   MarginHistory: 'margin_history',
+  MaterialItem: 'material_item',
   Notification: 'notification',
   PdfRecord: 'pdf_record',
   Proposal: 'proposal',
@@ -50,33 +51,40 @@ function throwIfError({ data, error }) {
   return data;
 }
 
+// Tables whose secret columns are not granted to API roles must select an
+// explicit column list — `*` would fail with permission denied.
+const SAFE_COLUMNS = {
+  customer: 'id,created_date,updated_date,created_by_id,created_by,annual_profit_goal,base_hourly_wage,be_avg_job_value,be_gross_margin_percent,be_insurance,be_marketing,be_other,be_phone_utilities,be_rent_office,be_salaries_non_field,be_software_tools,be_vehicle_equipment,benefits_percent,company_name,default_markup_percent,default_overhead_percent,email,full_name,general_liability_percent,labor_burden_percent,payroll_tax_percent,phone,state,stripe_customer_id,subscription_plan,subscription_status,target_margin_percent,trade,trade_preset,trial_ends_at,variance_alert_threshold_percent,workers_comp_percent,stripe_connect_account_id,connect_charges_enabled,co_deposit_percent,weekly_digest,sample_seeded',
+};
+
 function makeEntity(name) {
   const table = TABLES[name];
   if (!table) throw new Error(`Unknown entity: ${name}`);
+  const cols = SAFE_COLUMNS[table] || '*';
 
   return {
     list: async (sort, limit) => {
-      let q = supabase.from(table).select('*');
+      let q = supabase.from(table).select(cols);
       q = applySort(q, sort);
       if (limit) q = q.limit(limit);
       return throwIfError(await q);
     },
     filter: async (match, sort, limit) => {
-      let q = supabase.from(table).select('*').match(match || {});
+      let q = supabase.from(table).select(cols).match(match || {});
       q = applySort(q, sort);
       if (limit) q = q.limit(limit);
       return throwIfError(await q);
     },
     get: async (id) => {
-      const q = supabase.from(table).select('*').eq('id', id).single();
+      const q = supabase.from(table).select(cols).eq('id', id).single();
       return throwIfError(await q);
     },
     create: async (data) => {
-      const q = supabase.from(table).insert(data).select().single();
+      const q = supabase.from(table).insert(data).select(cols).single();
       return throwIfError(await q);
     },
     update: async (id, data) => {
-      const q = supabase.from(table).update(data).eq('id', id).select().single();
+      const q = supabase.from(table).update(data).eq('id', id).select(cols).single();
       return throwIfError(await q);
     },
     delete: async (id) => {
@@ -84,7 +92,7 @@ function makeEntity(name) {
       return throwIfError(await q);
     },
     bulkCreate: async (records) => {
-      const q = supabase.from(table).insert(records).select();
+      const q = supabase.from(table).insert(records).select(cols);
       return throwIfError(await q);
     },
     bulkUpdate: async (records) => {
@@ -92,7 +100,7 @@ function makeEntity(name) {
       // multi-row update-with-different-values in one call, so loop.
       const results = [];
       for (const { id, ...fields } of records) {
-        const q = supabase.from(table).update(fields).eq('id', id).select().single();
+        const q = supabase.from(table).update(fields).eq('id', id).select(cols).single();
         results.push(throwIfError(await q));
       }
       return results;

@@ -134,7 +134,8 @@ export function calculateChangeOrder(data, userDefaults = {}, jobTargetMargin = 
 // Job-level margin rollup
 export function calculateJobMargins(job, changeOrders) {
   const approved = changeOrders.filter(co => co.status === "approved");
-  const totalApprovedRevenue = approved.reduce((s, co) => s + (co.final_price_to_client || 0), 0);
+  // Revenue is pre-tax: sales tax is collected for the state, not earned, so it must not inflate margin.
+  const totalApprovedRevenue = approved.reduce((s, co) => s + coRevenuePreTax(co), 0);
   const totalApprovedCost = approved.reduce((s, co) => s + (co.total_cost || 0), 0);
   const adjustedRevenue = (job.contract_value || 0) + totalApprovedRevenue;
   const adjustedCost = (job.estimated_cost || 0) + totalApprovedCost;
@@ -177,7 +178,7 @@ export function calculateJobMargins(job, changeOrders) {
 // 3️⃣ Projected job margin after a pending CO approval
 export function calculateProjectedJobMargin(job, existingChangeOrders, pendingCO) {
   const { adjustedRevenue, adjustedCost } = calculateJobMargins(job, existingChangeOrders);
-  const coRevenue = pendingCO.final_price_to_client || pendingCO.sell_price || 0;
+  const coRevenue = coRevenuePreTax(pendingCO);
   const coCost = pendingCO.total_cost || 0;
   const newRevenue = adjustedRevenue + coRevenue;
   const newCost = adjustedCost + coCost;
@@ -291,6 +292,10 @@ export function calculateUpcomingCollections(changeOrders, days = 14) {
       return dueDate <= cutoff;
     })
     .reduce((s, co) => s + (co.final_price_to_client || 0), 0);
+}
+
+export function coRevenuePreTax(co) {
+  return co.sell_price != null ? Number(co.sell_price) || 0 : (co.final_price_to_client || 0) - (co.tax_amount || 0);
 }
 
 function r2(n) {

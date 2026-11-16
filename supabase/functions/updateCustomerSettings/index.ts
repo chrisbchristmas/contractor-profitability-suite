@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
       'be_phone_utilities', 'be_marketing', 'be_salaries_non_field', 'be_other',
       'be_gross_margin_percent', 'be_avg_job_value', 'state', 'base_hourly_wage',
       'payroll_tax_percent', 'general_liability_percent', 'benefits_percent',
-      'variance_alert_threshold_percent'
+      'variance_alert_threshold_percent', 'weekly_digest', 'co_deposit_percent'
     ];
 
     const updates = {};
@@ -47,6 +47,12 @@ Deno.serve(async (req) => {
       if (settings[field] !== undefined) {
         updates[field] = settings[field];
       }
+    }
+
+    if ('weekly_digest' in updates) updates.weekly_digest = updates.weekly_digest === true;
+    if ('co_deposit_percent' in updates) {
+      const p = Number(updates.co_deposit_percent);
+      updates.co_deposit_percent = Number.isFinite(p) ? Math.min(100, Math.max(0, p)) : 0;
     }
 
     await entities.Customer.update(customer.id, updates);

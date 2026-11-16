@@ -1,4 +1,5 @@
-import { entities } from '../_shared/base44compat.ts';
+import { entities, supa } from '../_shared/base44compat.ts';
+import { hasPro } from '../_shared/owner.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 Deno.serve(async (req) => {
@@ -44,7 +45,20 @@ Deno.serve(async (req) => {
       client_name = job?.client_name;
     }
 
+    // Deposit offer mirrors payInvoice's ?co= gating so the button only shows when checkout will work.
+    let deposit = null;
+    const { data: owner } = await supa.from('customer').select('co_deposit_percent,stripe_connect_account_id,connect_charges_enabled,subscription_status,subscription_plan,trial_ends_at')
+      .ilike('email', (co.created_by || '').replace(/[%_\\]/g, '\\$&')).maybeSingle();
+    const pct = Math.min(100, Math.max(0, Number(owner?.co_deposit_percent) || 0));
+    const amount = Math.round((Number(co.final_price_to_client || co.sell_price) || 0) * pct) / 100;
+    if (co.deposit_paid_at) {
+      deposit = { percent: pct, amount: co.deposit_amount ?? amount, paid: true, pay_url: null };
+    } else if (pct > 0 && amount >= 0.5 && owner?.stripe_connect_account_id && owner.connect_charges_enabled && hasPro(owner)) {
+      deposit = { percent: pct, amount, paid: false, pay_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/payInvoice?co=${token}` };
+    }
+
     return Response.json({
+      deposit,
       description: co.description,
       status: viewedStatus,
       signer_name: co.signer_name || null,

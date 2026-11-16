@@ -164,6 +164,17 @@ export default function ApproveChangeOrder() {
                 </div>
               )}
             </div>
+            {co?.deposit && (co.deposit.paid ? (
+              <p className="mt-6 text-sm font-medium text-emerald-700">
+                Deposit of ${Number(co.deposit.amount).toFixed(2)} received — thank you.
+              </p>
+            ) : (
+              <Button asChild className="mt-6 w-full h-11 bg-emerald-600 hover:bg-emerald-700">
+                <a href={co.deposit.pay_url}>
+                  Pay {co.deposit.percent}% deposit — ${Number(co.deposit.amount).toFixed(2)}
+                </a>
+              </Button>
+            ))}
           </div>
         ) : declined ? (
           <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-8 text-center">

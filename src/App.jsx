@@ -17,6 +17,8 @@ import CustomerLogin from './pages/CustomerLogin';
 import Register from './pages/Register';
 import Proposals from './pages/Proposals';
 import ApproveChangeOrder from './pages/ApproveChangeOrder';
+import InvoicePaid from './pages/InvoicePaid';
+import CrewClock from './pages/CrewClock';
 import JobCostingCalculator from './pages/JobCostingCalculator';
 import BreakEvenAnalysis from './pages/BreakEvenAnalysis';
 import PortfolioView from './pages/PortfolioView';
@@ -129,6 +131,8 @@ const AuthenticatedApp = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/Proposals" element={<LayoutWrapper currentPageName="Proposals"><Proposals /></LayoutWrapper>} />
         <Route path="/ApproveChangeOrder" element={<ApproveChangeOrder />} />
+        <Route path="/invoice-paid" element={<InvoicePaid />} />
+        <Route path="/crew" element={<CrewClock />} />
         <Route path="/calculators" element={<CalculatorsHub />} />
         <Route path="/calculators/job-costing-calculator" element={<JobCostingCalculator />} />
         <Route path="/calculators/pricing-model-analyser" element={<PricingModelAnalyserPage />} />

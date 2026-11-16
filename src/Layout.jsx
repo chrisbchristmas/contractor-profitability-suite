@@ -12,7 +12,7 @@ import MobileHeader from "./components/layout/MobileHeader";
 import SubscriptionGate from "./components/auth/SubscriptionGate";
 import NotificationBell from "./components/notifications/NotificationBell";
 
-const PUBLIC_PAGES = ["AAppLanding", "Resources", "BlogPost", "Billing", "CalculatorHub", "FreeCalculator", "FreeJobCostingCalculator", "PrivacyPolicy", "TermsOfService", "Contact", "ProfitCalculators", "ApproveChangeOrder", "CompareJobber", "CompareHousecallPro", "CompareQuickBooks", "CompareBuildertrend", "CompareKnowify", "CompareContractorForeman", "CompareProcore", "CompareServiceTitan", "CompareHub", "ForHvac", "ForElectrical", "ForPlumbing", "ForRoofing", "ForRemodeling"];
+const PUBLIC_PAGES = ["AAppLanding", "Resources", "BlogPost", "Billing", "CalculatorHub", "FreeCalculator", "FreeJobCostingCalculator", "PrivacyPolicy", "TermsOfService", "Contact", "ProfitCalculators", "ApproveChangeOrder", "InvoicePaid", "CompareJobber", "CompareHousecallPro", "CompareQuickBooks", "CompareBuildertrend", "CompareKnowify", "CompareContractorForeman", "CompareProcore", "CompareServiceTitan", "CompareHub", "ForHvac", "ForElectrical", "ForPlumbing", "ForRoofing", "ForRemodeling"];
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },

@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MobileSelect from "@/components/ui/MobileSelect";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, Briefcase, Download, Bookmark } from "lucide-react";
+import { Plus, Search, Briefcase, Download, Upload, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { parseCSV, csvRowToJob } from "@/lib/csv";
 import { Skeleton } from "@/components/ui/skeleton";
 import JobCard from "@/components/jobs/JobCard";
 import { isOwner, isPM, canViewJob } from "@/components/auth/permissions";
@@ -47,6 +49,45 @@ export default function Jobs() {
   });
 
   const canCreate = isOwner(currentUser) || isPM(currentUser);
+  const [busy, setBusy] = useState(false);
+
+  const importCSV = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("CSV is too large (2MB max)"); return; }
+    const rows = parseCSV(await file.text());
+    const good = rows.map(csvRowToJob).filter(Boolean).slice(0, 500);
+    if (!good.length) { toast.error("No valid rows. Columns needed: job_name, contract_value, estimated_cost (client_name, start_date optional)"); return; }
+    setBusy(true);
+    let ok = 0;
+    for (const j of good) { try { await base44.entities.Job.create(j); ok++; } catch { /* counted as skipped */ } }
+    setBusy(false);
+    queryClient.invalidateQueries({ queryKey: ["jobs"] });
+    toast.success(`Imported ${ok} job${ok === 1 ? "" : "s"}${rows.length - ok ? `, skipped ${rows.length - ok}` : ""}`);
+  };
+
+  const createSample = async () => {
+    setBusy(true);
+    try {
+      const job = await base44.entities.Job.create({
+        job_name: "Sample — Kitchen Remodel", client_name: "Sample Client", status: "active",
+        contract_value: 48000, estimated_cost: 36000, target_margin_percent: 25,
+        estimated_labor_cost: 14000, estimated_material_cost: 16000, estimated_subcontractor_cost: 6000,
+        start_date: new Date().toISOString().split("T")[0],
+      });
+      const today = new Date().toISOString().split("T")[0];
+      await Promise.all([
+        ["materials", 9200, "Cabinets & countertops"], ["labor", 6100, "Demo + rough-in"], ["subcontractor", 3400, "Electrician"],
+      ].map(([category, amount, note]) => base44.entities.JobExpense.create({ job_id: job.id, job_name: job.job_name, category, amount, note, date: today })));
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      toast.success("Sample job created — open it to explore, delete it anytime");
+    } catch (err) {
+      toast.error(err?.message || "Couldn't create sample job");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -67,6 +108,14 @@ export default function Jobs() {
           }}>
             <Download className="h-4 w-4 mr-1.5" /> Export CSV
           </Button>
+          {canCreate && (
+            <Button variant="outline" asChild disabled={busy}>
+              <label className="cursor-pointer">
+                <Upload className="h-4 w-4 mr-1.5" /> {busy ? "Importing..." : "Import CSV"}
+                <input type="file" accept=".csv,text/csv" className="hidden" onChange={importCSV} disabled={busy} />
+              </label>
+            </Button>
+          )}
           <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setShowCreate(true)}>
             <Plus className="h-4 w-4 mr-1.5" /> New Job
           </Button>
@@ -108,6 +157,11 @@ export default function Jobs() {
           <Button variant="outline" className="mt-4" onClick={() => setShowCreate(true)}>
             Create your first job
           </Button>
+          {!search && canCreate && (
+            <Button variant="ghost" className="mt-4 ml-2" onClick={createSample} disabled={busy}>
+              <Sparkles className="h-4 w-4 mr-1.5" /> Try a sample job
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

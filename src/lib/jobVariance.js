@@ -4,6 +4,7 @@
  * JobDetail banner/panel and the persisted profit_alerts stay in sync.
  */
 import { burdenedLaborCost, rawLaborCost } from "@/lib/laborBurden";
+import { coRevenuePreTax } from "@/components/changeorders/CalculationEngine";
 
 export const COST_CATEGORIES = [
   { key: "labor", label: "Labor" },
@@ -79,7 +80,7 @@ export function computeJobVariance(job, changeOrders, timeEntries, crewCosts, ex
   const estimates = computeCategoryEstimates(job);
 
   const approvedCOs = (changeOrders || []).filter((co) => co.status === "approved");
-  const coRevenue = sum(approvedCOs, (co) => co.final_price_to_client || co.sell_price || 0);
+  const coRevenue = sum(approvedCOs, coRevenuePreTax);
   const adjustedRevenue = (Number(job.contract_value) || Number(job.contract_price) || 0) + coRevenue;
 
   const totalActual = actuals.labor + actuals.materials + actuals.subcontractor + actuals.equipment_other;

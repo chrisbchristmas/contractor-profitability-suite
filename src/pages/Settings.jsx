@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Save, Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ProSettings from "@/components/settings/ProSettings";
+import PriceList from "@/components/settings/PriceList";
 import { toast } from "sonner";
 import MobileSelect from "@/components/ui/MobileSelect";
 import { TRADES } from "@/lib/trades";
@@ -33,6 +35,8 @@ export default function Settings() {
     annual_profit_goal: "",
     base_hourly_wage: "",
     variance_alert_threshold_percent: 8,
+    weekly_digest: true,
+    co_deposit_percent: 0,
   });
   const [showBurdenBreakdown, setShowBurdenBreakdown] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -60,6 +64,8 @@ export default function Settings() {
         annual_profit_goal: user.annual_profit_goal || "",
         base_hourly_wage: user.base_hourly_wage || "",
         variance_alert_threshold_percent: user.variance_alert_threshold_percent ?? 8,
+        weekly_digest: user.weekly_digest ?? true,
+        co_deposit_percent: user.co_deposit_percent ?? 0,
       });
     }
   }, [user]);
@@ -92,6 +98,8 @@ export default function Settings() {
         annual_profit_goal: parseFloat(form.annual_profit_goal) || null,
         base_hourly_wage: parseFloat(form.base_hourly_wage) || null,
         variance_alert_threshold_percent: parseFloat(form.variance_alert_threshold_percent) || 8,
+        weekly_digest: !!form.weekly_digest,
+        co_deposit_percent: Math.min(100, Math.max(0, parseFloat(form.co_deposit_percent) || 0)),
       });
       await refreshCustomer();
       setSaved(true);
@@ -223,6 +231,27 @@ export default function Settings() {
                 <p className="text-xs text-slate-400 mt-1">Fire a category alert when actual cost exceeds estimate by this % (default 8%).</p>
               </div>
               <div>
+                <Label className="text-xs text-slate-500">Change Order Deposit %</Label>
+                <Input
+                  type="number" step="1" min="0" max="100"
+                  value={form.co_deposit_percent}
+                  onChange={e => setForm(p => ({...p, co_deposit_percent: e.target.value}))}
+                  className="mt-1"
+                />
+                <p className="text-xs text-slate-400 mt-1">Ask clients to pay this % by card when they sign a change order (0 = off).</p>
+              </div>
+              <div className="sm:col-span-2 flex items-start gap-3 rounded-lg border border-border p-3">
+                <input
+                  id="weekly_digest" type="checkbox" className="mt-0.5 h-4 w-4 accent-blue-600"
+                  checked={!!form.weekly_digest}
+                  onChange={e => setForm(p => ({...p, weekly_digest: e.target.checked}))}
+                />
+                <label htmlFor="weekly_digest" className="text-sm">
+                  <span className="font-medium text-foreground">Monday profit digest</span>
+                  <span className="block text-xs text-slate-400">A weekly email with jobs over budget, overdue invoices, and unsigned change orders.</span>
+                </label>
+              </div>
+              <div>
                 <Label className="text-xs text-slate-500">Default Markup %</Label>
                 <Input
                   type="number" step="0.01"
@@ -344,6 +373,10 @@ export default function Settings() {
             {saved ? <><Check className="h-4 w-4 mr-1.5" /> Saved</> : saving ? "Saving..." : <><Save className="h-4 w-4 mr-1.5" /> Save Settings</>}
           </Button>
         </div>
+
+        <ProSettings />
+
+        <PriceList />
 
         {/* Account Deletion */}
         <Card className="border-red-200">

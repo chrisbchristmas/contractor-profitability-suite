@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Save, Check, TrendingUp, TrendingDown, Calendar, DollarSign, Target } from "lucide-react";
 import { toast } from "sonner";
-import { calculateJobMargins } from "@/components/changeorders/CalculationEngine";
+import { calculateJobMargins, coRevenuePreTax } from "@/components/changeorders/CalculationEngine";
 
 const OVERHEAD_FIELDS = [
   { key: "be_rent_office", label: "Rent / Office" },
@@ -64,7 +64,7 @@ export default function BreakEvenAnalysis() {
   const currentMonthRevenue = activeJobs.reduce((s, job) => {
     const jobCOs = changeOrders.filter(co => co.job_id === job.id);
     const margins = calculateJobMargins(job, jobCOs);
-    const coRevenue = jobCOs.filter(co => co.status === "approved").reduce((s2, co) => s2 + (co.final_price_to_client || 0), 0);
+    const coRevenue = jobCOs.filter(co => co.status === "approved").reduce((s2, co) => s2 + coRevenuePreTax(co), 0);
     const start = job.start_date ? new Date(job.start_date) : null;
     if (start && start.getMonth() === now.getMonth() && start.getFullYear() === now.getFullYear()) {
       return s + (job.contract_value || 0) + coRevenue;

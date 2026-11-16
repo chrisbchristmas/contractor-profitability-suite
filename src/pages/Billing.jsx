@@ -4,6 +4,7 @@ import { useCustomerAuth } from "@/lib/CustomerAuthContext";
 import { CreditCard, CheckCircle, AlertCircle, Clock, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SOLO_FEATURES, PRO_FEATURES } from "@/lib/plans";
 
 const statusConfig = {
   active: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-200", label: "Active" },
@@ -19,7 +20,7 @@ const PLANS = [
     price: 19,
     icon: Zap,
     description: "Perfect for individual contractors",
-    features: ["Unlimited change orders", "PDF exports", "Audit log", "14-day free trial"],
+    features: SOLO_FEATURES,
   },
   {
     id: "pro",
@@ -27,7 +28,7 @@ const PLANS = [
     price: 39,
     icon: Shield,
     description: "For growing contractor teams",
-    features: ["Everything in Solo", "Priority support", "14-day free trial"],
+    features: ["Everything in Solo", ...PRO_FEATURES],
     popular: true,
   },
 ];

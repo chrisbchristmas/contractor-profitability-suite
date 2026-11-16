@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
     if (!change_order_id) return Response.json({ error: 'change_order_id required' }, { status: 400, headers: corsHeaders });
 
     const co = await entities.ChangeOrder.get(change_order_id);
-    if (!co) return Response.json({ error: 'Change order not found' }, { status: 404, headers: corsHeaders });
+    // service-role read: enforce ownership, or any user could mint an approval token for another contractor's CO
+    if (!co || (co.created_by_id !== user.id && user.role !== 'admin')) return Response.json({ error: 'Change order not found' }, { status: 404, headers: corsHeaders });
 
     const token = co.approval_token || crypto.randomUUID();
 

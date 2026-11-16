@@ -8,8 +8,9 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
 
     const [jobs, changeOrders] = await Promise.all([
-      entities.Job.list(),
-      entities.ChangeOrder.list(),
+      // entities is service-role (bypasses RLS): scope to the caller like job_read / change_order_read do.
+      entities.Job.filter({ user_id: user.id }),
+      entities.ChangeOrder.filter({ created_by_id: user.id }),
     ]);
 
     const jobHeaders = ['Job Name','Client','Contract Value','Estimated Cost','Target Margin %','Status','Start Date','Completion Date'];
