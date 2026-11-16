@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { calculateJobMargins, calculateJobDirectMetrics } from "@/components/changeorders/CalculationEngine";
+import { calculateJobMargins } from "@/components/changeorders/CalculationEngine";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { KanbanSquare, AlertTriangle } from "lucide-react";

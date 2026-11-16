@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Printer } from "lucide-react";
 import { format } from "date-fns";
-import { calculateJobMargins } from "@/components/changeorders/CalculationEngine";
 
 export default function JobProfitReport({ job, changeOrders, jobMargins, onClose }) {
   const jobId = job.id;

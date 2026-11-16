@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PullToRefresh from "@/components/ui/PullToRefresh";
@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProfitPaceCard from "@/components/dashboard/ProfitPaceCard";
 import ProfitAtRiskCard from "@/components/dashboard/ProfitAtRiskCard";
 import CashFlowCard from "@/components/dashboard/CashFlowCard";
-import { calculateJobMargins, calculateProfitAtRisk, calculateUpcomingCollections, calculateContractorPerformance, coRevenuePreTax } from "@/components/changeorders/CalculationEngine";
+import { calculateJobMargins, calculateProfitAtRisk, calculateUpcomingCollections, coRevenuePreTax } from "@/components/changeorders/CalculationEngine";
 import ContractorPerformanceBar from "@/components/dashboard/ContractorPerformanceBar";
 import MostProfitableJobs from "@/components/dashboard/MostProfitableJobs";
 import ProfitForecastWidget from "@/components/dashboard/ProfitForecastWidget";

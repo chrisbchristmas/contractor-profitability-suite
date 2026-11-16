@@ -1,6 +1,6 @@
 import React from "react";
 import TradePage from "@/components/trades/TradePage";
-import { Wrench, DollarSign, Layers, TrendingUp } from "lucide-react";
+import { Wrench, DollarSign, Layers } from "lucide-react";
 
 export default function ForPlumbing() {
   return (

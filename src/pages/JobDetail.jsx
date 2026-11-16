@@ -4,13 +4,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Plus, Briefcase, CheckCircle, Lock, Send, FileDown, Bookmark, AlertTriangle, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Briefcase, Lock, FileDown, Bookmark, AlertTriangle, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -105,7 +104,7 @@ export default function JobDetail() {
     base44.functions.invoke("checkProfitLeakage", { job_id: jobId })
       .then(() => queryClient.invalidateQueries({ queryKey: ["jobs"] }))
       .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [jobId]);
   const hasOutstandingWaivers = lienWaivers.some(w => w.status === "Pending");
   const showLienWarning = hasOutstandingWaivers && (job?.pipeline_status === "Complete" || job?.pipeline_status === "Invoiced");

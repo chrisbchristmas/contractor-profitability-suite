@@ -1,6 +1,6 @@
 import React from "react";
 import TradePage from "@/components/trades/TradePage";
-import { CloudRain, Layers, FileText, DollarSign } from "lucide-react";
+import { CloudRain, Layers, FileText } from "lucide-react";
 
 export default function ForRoofing() {
   return (

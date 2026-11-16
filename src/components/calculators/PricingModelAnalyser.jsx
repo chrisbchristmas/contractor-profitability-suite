@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import CalcShell, { Field, Results } from "./CalcShell";
+import CalcShell, { Field } from "./CalcShell";
 import LeadCapture from "@/components/leads/LeadCapture";
 
 export default function PricingModelAnalyser() {

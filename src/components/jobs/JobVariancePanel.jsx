@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { useCustomerAuth } from "@/lib/CustomerAuthContext";
 import { getBurdenPercent } from "@/lib/laborBurden";
-import { computeJobVariance, COST_CATEGORIES } from "@/lib/jobVariance";
+import { computeJobVariance } from "@/lib/jobVariance";
 
 const $ = (n) => `$${(n || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 const pct = (n) => `${(n || 0).toFixed(1)}%`;

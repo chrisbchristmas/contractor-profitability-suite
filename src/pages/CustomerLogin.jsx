@@ -45,7 +45,7 @@ export default function CustomerLogin() {
       setResetToken(token);
       setView('reset');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const handleGoogleCallback = async () => {

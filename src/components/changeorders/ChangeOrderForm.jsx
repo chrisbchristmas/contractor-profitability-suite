@@ -1,11 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MobileSelect from "@/components/ui/MobileSelect";
 import { Save, X, Lock, Copy } from "lucide-react";
 import { useCustomerAuth } from "@/lib/CustomerAuthContext";
