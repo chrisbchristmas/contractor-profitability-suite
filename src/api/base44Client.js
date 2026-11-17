@@ -91,6 +91,11 @@ function makeEntity(name) {
       const q = supabase.from(table).delete().eq('id', id);
       return throwIfError(await q);
     },
+    deleteMany: async (match) => {
+      // empty match would delete every row the user can see
+      if (!match || !Object.keys(match).length) throw new Error(`${name}.deleteMany needs a filter`);
+      return throwIfError(await supabase.from(table).delete().match(match));
+    },
     bulkCreate: async (records) => {
       const q = supabase.from(table).insert(records).select(cols);
       return throwIfError(await q);
