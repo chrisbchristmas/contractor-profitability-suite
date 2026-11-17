@@ -1,8 +1,9 @@
-import { base44 } from "@/api/base44Client";
+import { supabase } from "@/api/supabaseClient";
 
 export async function logAudit({ recordType, recordId, action, fieldChanged, oldValue, newValue, user, description }) {
   try {
-    await base44.entities.AuditLog.create({
+    // Plain insert, no .select(): audit_log is admin-read-only, so a read-back makes RLS reject owner/PM inserts.
+    const { error } = await supabase.from("audit_log").insert({
       record_type: recordType,
       record_id: recordId,
       action,
@@ -14,6 +15,7 @@ export async function logAudit({ recordType, recordId, action, fieldChanged, old
       changed_by_role: user?.role || "",
       description: description || `${action} on ${recordType}`,
     });
+    if (error) console.warn("audit log failed:", error.message);
   } catch (_) {
     // Audit failures should never block main flow
   }
