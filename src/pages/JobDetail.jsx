@@ -127,8 +127,11 @@ export default function JobDetail() {
       queryClient.setQueryData(["changeOrders", jobId], (old = []) => [optimistic, ...old]);
       return { previous };
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (err, _vars, ctx) => {
       if (ctx?.previous) queryClient.setQueryData(["changeOrders", jobId], ctx.previous);
+      // CO row may already be saved if a later step failed; refetch so a retry doesn't duplicate it
+      queryClient.invalidateQueries({ queryKey: ["changeOrders", jobId] });
+      toast.error(err.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["changeOrders", jobId] });
@@ -206,8 +209,9 @@ export default function JobDetail() {
       queryClient.setQueryData(["changeOrders", jobId], (old = []) => old.filter(c => c.id !== co.id));
       return { previous };
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (err, _vars, ctx) => {
       if (ctx?.previous) queryClient.setQueryData(["changeOrders", jobId], ctx.previous);
+      toast.error(err.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["changeOrders", jobId] });
