@@ -117,7 +117,9 @@ const auth = {
   me: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
-    return user;
+    // auth user.role is always "authenticated"; the app role/profile lives in app_user
+    const { data: profile } = await supabase.from('app_user').select('*').eq('id', user.id).maybeSingle();
+    return { ...user, ...profile, id: user.id, email: user.email };
   },
   logout: async (redirectTo) => {
     await supabase.auth.signOut();

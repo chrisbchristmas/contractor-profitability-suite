@@ -9,9 +9,11 @@ export const ROLES = {
   ADMIN: "Admin",
 };
 
-export const isOwner = (user) => user?.role === ROLES.OWNER;
-export const isPM = (user) => user?.role === ROLES.PM;
-export const isAdmin = (user) => user?.role === ROLES.ADMIN;
+// app_user.role is stored lowercase ("owner", "pm", "admin")
+const roleIs = (user, ...names) => names.includes(String(user?.role || "").toLowerCase());
+export const isOwner = (user) => roleIs(user, "owner");
+export const isPM = (user) => roleIs(user, "pm", "project manager");
+export const isAdmin = (user) => roleIs(user, "admin");
 
 // Financial fields visibility — Owner only
 export const canViewFinancials = (user) => isOwner(user);
