@@ -286,27 +286,7 @@ export default function JobDetail() {
 
   const deleteJobMutation = useMutation({
     mutationFn: async () => {
-      // Fetch CO IDs first for CO-linked sub-records
-      const cos = await base44.entities.ChangeOrder.filter({ job_id: jobId });
-      for (const co of cos) {
-        await base44.entities.LeakageFlag.deleteMany({ change_order_id: co.id });
-        await base44.entities.PdfRecord.deleteMany({ change_order_id: co.id });
-      }
-      // Delete all job-related records
-      await base44.entities.ChangeOrder.deleteMany({ job_id: jobId });
-      await base44.entities.DailyLog.deleteMany({ job_id: jobId });
-      await base44.entities.Task.deleteMany({ job_id: jobId });
-      await base44.entities.Invoice.deleteMany({ job_id: jobId });
-      await base44.entities.JobAttachment.deleteMany({ job_id: jobId });
-      await base44.entities.Selection.deleteMany({ job_id: jobId });
-      await base44.entities.LienWaiver.deleteMany({ job_id: jobId });
-      await base44.entities.CrewCost.deleteMany({ job_id: jobId });
-      await base44.entities.TimeEntry.deleteMany({ job_id: jobId });
-      await base44.entities.JobExpense.deleteMany({ job_id: jobId });
-      await base44.entities.SubcontractorPO.deleteMany({ job_id: jobId });
-      await base44.entities.Warranty.deleteMany({ job_id: jobId });
-      await base44.entities.MarginHistory.deleteMany({ job_id: jobId });
-      // Finally delete the job itself
+      // every child table (COs, logs, tasks, invoices, flags, history...) has ON DELETE CASCADE to job
       await base44.entities.Job.delete(jobId);
       await logAudit({ recordType: "Job", recordId: jobId, action: "delete", user: currentUser, description: `Deleted job: ${job?.job_name}` });
     },
