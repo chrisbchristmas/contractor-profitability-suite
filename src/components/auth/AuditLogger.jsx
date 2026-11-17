@@ -9,7 +9,7 @@ export async function logAudit({ recordType, recordId, action, fieldChanged, old
       field_changed: fieldChanged || null,
       old_value: oldValue != null ? String(oldValue) : null,
       new_value: newValue != null ? String(newValue) : null,
-      changed_by: user?.email || "unknown",
+      changed_by: user?.id, // audit_log.changed_by is a uuid column
       changed_by_name: user?.full_name || "",
       changed_by_role: user?.role || "",
       description: description || `${action} on ${recordType}`,
