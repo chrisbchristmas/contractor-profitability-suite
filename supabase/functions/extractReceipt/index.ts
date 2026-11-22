@@ -2,6 +2,7 @@
 // Uses Claude Haiku vision (fractions of a cent per receipt). Owner + Pro only.
 import { getOwner, hasPro } from '../_shared/owner.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rateLimited } from '../_shared/security.ts';
 
 const CATS = ['labor', 'materials', 'subcontractor', 'equipment_other'];
 
@@ -11,6 +12,8 @@ function json(body: unknown, status = 200) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  // Each call spends Anthropic credit: cap per client.
+  if (await rateLimited(req, 'extractReceipt', 40, 60 * 60_000)) return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: corsHeaders });
   try {
     const { session_token, file_url } = await req.json();
     const owner = await getOwner(req, session_token);

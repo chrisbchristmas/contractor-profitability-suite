@@ -1,11 +1,14 @@
 import { entities, authMe } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rateLimited } from '../_shared/security.ts';
 
 const DEFAULT_VARIANCE_THRESHOLD = 8;
 const DEFAULT_BURDEN_PERCENT = 35;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  // Each call spends Anthropic credit: cap per client.
+  if (await rateLimited(req, 'checkProfitLeakage', 40, 60 * 60_000)) return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: corsHeaders });
   try {
     const body = await req.json();
 

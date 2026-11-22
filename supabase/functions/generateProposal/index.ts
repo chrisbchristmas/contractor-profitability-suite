@@ -1,10 +1,12 @@
 // NOTE: Requires ANTHROPIC_API_KEY as a Supabase Edge Function secret.
 import { entities } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
-import { sessionFresh, hasAccess } from '../_shared/security.ts';
+import { sessionFresh, hasAccess, rateLimited } from '../_shared/security.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  // Each call spends Anthropic credit: cap per client.
+  if (await rateLimited(req, 'generateProposal', 40, 60 * 60_000)) return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429, headers: corsHeaders });
   try {
     const body = await req.json();
     const { session_token, form } = body;
