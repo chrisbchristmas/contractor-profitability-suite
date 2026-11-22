@@ -45,7 +45,7 @@ function buildBody(calcResult, source, trade) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    if (rateLimited(req, 'sendLeadWelcome', 3, 60 * 60_000)) return tooMany(corsHeaders);
+    if (await rateLimited(req, 'sendLeadWelcome', 3, 60 * 60_000)) return tooMany(corsHeaders);
     const body = await req.json();
     const email = (body.email || "").trim();
     if (!EMAIL_RE.test(email) || email.length > 254) {

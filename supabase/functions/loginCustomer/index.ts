@@ -8,7 +8,7 @@ const DUMMY_HASH = bcrypt.hashSync(crypto.randomUUID(), 10);
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    if (rateLimited(req, 'loginCustomer')) return tooMany(corsHeaders);
+    if (await rateLimited(req, 'loginCustomer')) return tooMany(corsHeaders);
     const { email, password } = await req.json();
 
     if (!email || !password) {

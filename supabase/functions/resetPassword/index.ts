@@ -6,7 +6,7 @@ import bcrypt from 'npm:bcryptjs@2.4.3';
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    if (rateLimited(req, 'resetPassword')) return tooMany(corsHeaders);
+    if (await rateLimited(req, 'resetPassword')) return tooMany(corsHeaders);
     const { reset_token, password } = await req.json();
 
     const isPlainString = (v) => typeof v === 'string' && !v.startsWith('$');
@@ -37,6 +37,8 @@ Deno.serve(async (req) => {
       session_token,
       reset_token: null,
       reset_token_expires_at: null,
+      failed_logins: 0, // a reset proves mailbox ownership: lifts any brute-force lockout
+      locked_until: null,
     });
 
     return Response.json({

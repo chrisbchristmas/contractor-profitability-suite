@@ -42,7 +42,12 @@ Deno.serve(async (req) => {
       co.true_margin_percent ?? '',
     ]);
 
-    const escape = (val) => `"${String(val).replace(/"/g, '""')}"`;
+    const escape = (val) => {
+      let s = String(val);
+      // Neutralise spreadsheet formula injection on text (numbers pass through).
+      if (typeof val === 'string' && /^[=+\-@\t\r]/.test(s) && !/^[-+]?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+      return `"${s.replace(/"/g, '""')}"`;
+    };
     const toCSV = (headers, rows) => [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
 
     const csv = `JOBS\n${toCSV(jobHeaders, jobRows)}\n\nCHANGE ORDERS\n${toCSV(coHeaders, coRows)}`;

@@ -6,7 +6,7 @@ import bcrypt from 'npm:bcryptjs@2.4.3';
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    if (rateLimited(req, 'registerCustomer')) return tooMany(corsHeaders);
+    if (await rateLimited(req, 'registerCustomer')) return tooMany(corsHeaders);
     const { email, password, full_name } = await req.json();
 
     if (!email || !password) {

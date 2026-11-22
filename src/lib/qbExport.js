@@ -14,7 +14,9 @@
 
 function escapeCsv(value) {
   if (value == null) return "";
-  const s = String(value);
+  let s = String(value);
+  // Neutralise spreadsheet formula injection (leading = + - @ tab CR) on text; plain numbers pass through.
+  if (typeof value === "string" && /^[=+\-@\t\r]/.test(s) && !/^[-+]?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   if (/[",\n\r]/.test(s)) {
     return `"${s.replace(/"/g, '""')}"`;
   }

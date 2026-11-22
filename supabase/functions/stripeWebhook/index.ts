@@ -1,5 +1,5 @@
 // Requires STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_SOLO_PRICE_ID, STRIPE_PRO_PRICE_ID as secrets.
-import { entities } from '../_shared/base44compat.ts';
+import { entities, supa } from '../_shared/base44compat.ts';
 import Stripe from 'npm:stripe@14.21.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -31,21 +31,66 @@ async function apply(target, fields) {
   console.log(`[stripeWebhook] ${customer.email} ->`, fields);
 }
 
+// Contractor invoice / change-order payments arrive from Connect (event.account set), signed with a separate secret.
+async function recordConnectPayment(event) {
+  const s = event.data.object;
+  if (s.payment_status !== 'paid') return;
+  const amount = (s.amount_total || 0) / 100;
+  const invId = s.metadata?.invoice_id, coId = s.metadata?.change_order_id;
+  const table = invId ? 'invoice' : coId ? 'change_order' : null;
+  const id = invId || coId;
+  if (!table || !/^[0-9a-f-]{36}$/i.test(id)) return;
+  const { data: rec } = await supa.from(table).select('*').eq('id', id).maybeSingle();
+  if (!rec) return;
+  // The paying account must be the connected account of the record's owner, so one account can't mark another's invoice paid.
+  const { data: owner } = await supa.from('customer').select('stripe_connect_account_id')
+    .ilike('email', (rec.created_by || '').replace(/[%_\\]/g, '\\$&')).maybeSingle();
+  if (!owner?.stripe_connect_account_id || owner.stripe_connect_account_id !== event.account) return;
+  const today = new Date().toISOString().split('T')[0];
+  if (table === 'invoice') {
+    if (rec.status === 'paid') return;
+    await supa.from('invoice').update({ status: 'paid', payment_status: 'paid', paid_date: today, payment_received_date: today,
+      payment_amount: amount, stripe_session_id: s.id }).eq('id', id);
+  } else {
+    if (rec.deposit_paid_at) return;
+    await supa.from('change_order').update({ deposit_paid_at: new Date().toISOString(), deposit_amount: amount, deposit_session_id: s.id }).eq('id', id);
+  }
+  console.log(`[stripeWebhook] connect payment recorded on ${table} ${id}`);
+}
+
 Deno.serve(async (req) => {
   const sig = req.headers.get('stripe-signature');
-  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
-  if (!sig || !webhookSecret) return new Response('Webhook Error', { status: 400 });
+  const platformSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  const connectSecret = Deno.env.get('STRIPE_CONNECT_WEBHOOK_SECRET');
+  if (!sig || !platformSecret) return new Response('Webhook Error', { status: 400 });
   const body = await req.text();
 
-  let event;
+  let event, isConnect = false;
   try {
-    event = await stripe.webhooks.constructEventAsync(body, sig, webhookSecret);
+    event = await stripe.webhooks.constructEventAsync(body, sig, platformSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return new Response('Webhook Error', { status: 400 });
+    try {
+      if (!connectSecret) throw err;
+      event = await stripe.webhooks.constructEventAsync(body, sig, connectSecret);
+      isConnect = true;
+    } catch (err2) {
+      console.error('Webhook signature verification failed:', err2.message);
+      return new Response('Webhook Error', { status: 400 });
+    }
+  }
+
+  // Replay / duplicate protection: the first delivery claims the event id; failures release it so Stripe's retry works.
+  const { error: dupe } = await supa.from('stripe_event').insert({ id: event.id });
+  if (dupe) {
+    if (dupe.code === '23505') return Response.json({ received: true, duplicate: true });
+    console.warn('[stripeWebhook] dedupe insert failed, processing anyway:', dupe.message);
   }
 
   try {
+    if (isConnect) {
+      if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') await recordConnectPayment(event);
+      return Response.json({ received: true });
+    }
     if (event.type === 'checkout.session.completed') {
       const s = event.data.object;
       const plan = s.metadata?.plan;
@@ -72,6 +117,7 @@ Deno.serve(async (req) => {
     }
   } catch (err) {
     console.error('Webhook processing error:', err.message);
+    await supa.from('stripe_event').delete().eq('id', event.id);
     // Non-2xx so Stripe retries instead of silently dropping a paid customer's activation.
     return new Response('Processing error', { status: 500 });
   }

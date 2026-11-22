@@ -1,17 +1,6 @@
 import { entities, sendEmail } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
-
-const rateLimitMap = new Map();
-function checkRateLimit(key, maxRequests, windowMs) {
-  const now = Date.now();
-  const entry = rateLimitMap.get(key);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= maxRequests;
-}
+import { rateLimited } from '../_shared/security.ts';
 
 function getClientIp(req) {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -30,7 +19,7 @@ Deno.serve(async (req) => {
   try {
     const ip = getClientIp(req);
 
-    if (!checkRateLimit(`calcEmail:${ip}`, 3, 60 * 60_000)) {
+    if (await rateLimited(req, 'calcEmail', 3, 60 * 60_000)) {
       return Response.json({ error: 'Too many email requests. Please try again later.' }, { status: 429, headers: corsHeaders });
     }
 
