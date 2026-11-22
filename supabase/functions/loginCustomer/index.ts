@@ -31,13 +31,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
 
+    // DB-backed lockout (the in-memory limiter resets per isolate): 10 bad passwords locks the account 15 min.
+    if (customer.locked_until && new Date(customer.locked_until) > new Date()) {
+      return tooMany(corsHeaders);
+    }
+
     const valid = await bcrypt.compare(password, customer.password_hash || DUMMY_HASH) && !!customer.password_hash; // Google-only accounts have no hash
     if (!valid) {
+      const fails = (customer.failed_logins ?? 0) + 1;
+      await entities.Customer.update(customer.id, fails >= 10
+        ? { failed_logins: 0, locked_until: new Date(Date.now() + 15 * 60 * 1000).toISOString() }
+        : { failed_logins: fails });
       return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
 
     const session_token = newSessionToken();
-    await entities.Customer.update(customer.id, { session_token });
+    await entities.Customer.update(customer.id, { session_token, failed_logins: 0, locked_until: null });
 
     return Response.json({
       session_token,
