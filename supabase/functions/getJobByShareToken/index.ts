@@ -48,6 +48,6 @@ Deno.serve(async (req) => {
       total_with_cos: showContractValue ? ((job.contract_value || 0) + coTotal) : null,
     }, { headers: corsHeaders });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: 'Something went wrong. Please try again.' }, { status: 500, headers: corsHeaders });
   }
 });

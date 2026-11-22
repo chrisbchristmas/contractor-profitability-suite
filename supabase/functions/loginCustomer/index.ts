@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
 
-    const valid = await bcrypt.compare(password, customer.password_hash);
+    const valid = await bcrypt.compare(password, customer.password_hash || DUMMY_HASH) && !!customer.password_hash; // Google-only accounts have no hash
     if (!valid) {
       return Response.json({ error: 'Invalid email or password' }, { status: 401, headers: corsHeaders });
     }
@@ -53,6 +53,6 @@ Deno.serve(async (req) => {
       }
     }, { headers: corsHeaders });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: 'Something went wrong. Please try again.' }, { status: 500, headers: corsHeaders });
   }
 });

@@ -57,6 +57,6 @@ Deno.serve(async (req) => {
       }
     }, { headers: corsHeaders });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: 'Something went wrong. Please try again.' }, { status: 500, headers: corsHeaders });
   }
 });

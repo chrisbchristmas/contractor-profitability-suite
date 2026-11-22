@@ -44,6 +44,6 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, signer_name: signer_name.trim(), signed_at: now }, { headers: corsHeaders });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: 'Something went wrong. Please try again.' }, { status: 500, headers: corsHeaders });
   }
 });

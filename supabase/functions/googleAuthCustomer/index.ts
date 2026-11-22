@@ -1,6 +1,7 @@
 import { entities, authMe } from '../_shared/base44compat.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { newSessionToken } from '../_shared/security.ts';
+import bcrypt from 'npm:bcryptjs@2.4.3';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -37,7 +38,8 @@ Deno.serve(async (req) => {
     const session_token = newSessionToken();
 
     if (customer) {
-      await entities.Customer.update(customer.id, { session_token });
+      // Register has no email verification: invalidate any pre-set password (pre-hijack). Owner can use Google or Forgot Password.
+      await entities.Customer.update(customer.id, { session_token, password_hash: await bcrypt.hash(crypto.randomUUID(), 10) });
     } else {
       const trial_ends_at = new Date();
       trial_ends_at.setDate(trial_ends_at.getDate() + 14);
@@ -66,6 +68,6 @@ Deno.serve(async (req) => {
     }, { headers: corsHeaders });
   } catch (error) {
     console.error('googleAuthCustomer error:', error);
-    return Response.json({ error: error.message }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: 'Something went wrong. Please try again.' }, { status: 500, headers: corsHeaders });
   }
 });
